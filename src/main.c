@@ -65,7 +65,7 @@ int SdlInit()
 
 
 int 
-DrawFieldGrid(
+CreatFieldGrid(
    SDL_Renderer*     Renderer,
    const GAME_FIELD* Field)
 {
@@ -90,32 +90,30 @@ DrawFieldGrid(
       res = SDL_RenderClear(Renderer);
       if (res) { break; }
 
-      // Draw grid lines
-      res = SDL_SetRenderDrawColor(
-                           Renderer, 
-                           Field->GridColor.r,
-                           Field->GridColor.g,
-                           Field->GridColor.b,
-                           Field->GridColor.a);
-      if (res) { break; }
+      // // Draw grid lines
+      // res = SDL_SetRenderDrawColor(
+      //                      Renderer, 
+      //                      Field->GridColor.r,
+      //                      Field->GridColor.g,
+      //                      Field->GridColor.b,
+      //                      Field->GridColor.a);
+      // if (res) { break; }
 
-      // Vertical lines
-      for (int x = Field->CellSize; x < Field->Width; x += Field->CellSize)
-      {
-         res = SDL_RenderLine(Renderer, x, 0, x, Field->Height);
-         if (res) { break; }
-      }
-      if (res) { break; }
+      // // Vertical lines
+      // for (int x = Field->CellSize; x < Field->Width; x += Field->CellSize)
+      // {
+      //    res = SDL_RenderLine(Renderer, x, 0, x, Field->Height - 1);
+      //    if (res) { break; }
+      // }
+      // if (res) { break; }
 
-      // Vertical lines
-      for (int y = Field->CellSize; y < Field->Height; y += Field->CellSize)
-      {
-         res = SDL_RenderLine(Renderer, 0, y, Field->Width, y);
-         if (res) { break; }
-      }
-      if (res) { break; }
-
-      res = SDL_RenderPresent(Renderer);
+      // // Vertical lines
+      // for (int y = Field->CellSize; y < Field->Height; y += Field->CellSize)
+      // {
+      //    res = SDL_RenderLine(Renderer, 0, y, Field->Width - 1, y);
+      //    if (res) { break; }
+      // }
+      // if (res) { break; }
 
    } while (false);
    
@@ -177,26 +175,33 @@ RenderSnake(
    {
       if (NULL == Snake) { res = 1; break; }
 
+      res = SDL_SetRenderDrawColor(Renderer, 60, 60, 60, 0);
+      if (res) { break; }
+
+      res = SDL_RenderFillRect(Renderer, &Snake->Body[0]);
+
       res = SDL_SetRenderDrawColor(Renderer, 100, 100, 100, 0);
       if (res) { break; }
 
-      res = SDL_RenderFillRects(Renderer, Snake->Body, Snake->Length);
+      res = SDL_RenderFillRects(Renderer, &Snake->Body[1], Snake->Length - 1);
       if (res) { break; }
 
-      res = SDL_RenderPresent(Renderer);
    } while (false);
    
    return res;
 }
 
 int
-MoveSnake(SNAKE* Snake)
+MoveSnake(
+   SNAKE*      Snake,
+   GAME_FIELD* Field)
 {
    int res = 0;
 
    do
    {
       if (NULL == Snake) { res = 1; break; }
+      if (NULL == Field) { res = 1; break; }
 
       int deltaX, deltaY;
       switch (Snake->Direction)
@@ -204,13 +209,13 @@ MoveSnake(SNAKE* Snake)
          case SnakeDirectionUp:
          {
             deltaX = 0;
-            deltaY = Snake->Body[0].h;
+            deltaY = 0 - Snake->Body[0].h;
          }
          break;
          case SnakeDirectionDown:
          {
             deltaX = 0;
-            deltaY = 0 - Snake->Body[0].h;
+            deltaY = Snake->Body[0].h;
          }
          break;
          case SnakeDirectionRight:
@@ -232,6 +237,9 @@ MoveSnake(SNAKE* Snake)
 
       Snake->Body[0].x += deltaX;
       Snake->Body[0].y += deltaY;
+
+      Snake->Body[0].x = (int)(Snake->Body[0].x + Field->Width) % Field->Width;
+      Snake->Body[0].y = (int)(Snake->Body[0].y + Field->Height) % Field->Height;
 
       for (int i = 1; i < Snake->Length; ++i)
       {
@@ -256,6 +264,31 @@ IsPeriodPassed(
    }
 
    return false;
+}
+
+int Render(
+   SDL_Renderer*     Renderer,
+   const GAME_FIELD* Field,
+   const SNAKE*      Snake)
+{
+   int res = 0;
+
+   do
+   {
+      res = SDL_RenderClear(Renderer);
+      if (res) { break; }
+
+      res = CreatFieldGrid(Renderer, Field);
+      if (res) { break; }
+
+      res = RenderSnake(Renderer, Snake);
+      if (res) { break; }
+
+      res = SDL_RenderPresent(Renderer);
+
+   } while (false);
+   
+   return res;
 }
 
 int main()
@@ -290,22 +323,11 @@ int main()
       return 1;
    }
 
-   if (DrawFieldGrid(gRenderer, &field))
-   {
-      SDL_Log("DrawFieldGrid Error!");
-      return 1;
-   }
-
    SNAKE* snake = CreateSnake(&field);
    if (NULL == snake) { return 1; }
 
-   if (RenderSnake(gRenderer, snake))
-   {
-      SDL_Log("RenderSnake Error!");
-      return 1;
-   }
-
    bool isRunning = true;
+   bool inputHandled = false;
    int lastFrameTime = 0;
    SDL_Event event;
    while (isRunning)
@@ -316,13 +338,64 @@ int main()
          {
             isRunning = false;
          }
+         else if (event.type == SDL_EVENT_KEY_DOWN)
+         {
+            if (!inputHandled)
+            {
+               switch (event.key.keysym.sym)
+               {
+                  case SDLK_UP:
+                  {
+                     if (snake->Direction != SnakeDirectionUp
+                        && snake->Direction != SnakeDirectionDown)
+                     {
+                        snake->Direction = SnakeDirectionUp;
+                        inputHandled = true;
+                     }
+                  }
+                  break;
+                  case SDLK_DOWN:
+                  {
+                     if (snake->Direction != SnakeDirectionUp
+                        && snake->Direction != SnakeDirectionDown)
+                     {
+                        snake->Direction = SnakeDirectionDown;
+                        inputHandled = true;
+                     }
+                  }
+                  break;
+                  case SDLK_RIGHT:
+                  {
+                     if (snake->Direction != SnakeDirectionLeft
+                        && snake->Direction != SnakeDirectionRight)
+                     {
+                        snake->Direction = SnakeDirectionRight;
+                        inputHandled = true;
+                     }
+                  }
+                  break;
+                  case SDLK_LEFT:
+                  {
+                     if (snake->Direction != SnakeDirectionRight
+                        && snake->Direction != SnakeDirectionLeft)
+                     {
+                        snake->Direction = SnakeDirectionLeft;
+                        inputHandled = true;
+                     }
+                  }
+                  break;
+               }
+            }
+            inputHandled = true;
+         }
       }
 
       // WaitTime(300, lastFrameTime);
       if (IsPeriodPassed(250, lastFrameTime))
       {
-         MoveSnake(snake);
-         RenderSnake(gRenderer, snake);
+         MoveSnake(snake, &field);
+         Render(gRenderer, &field, snake);
+         inputHandled = false;
          lastFrameTime = SDL_GetTicks();
       }
 
