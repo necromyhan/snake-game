@@ -9,106 +9,154 @@
 #include "SDL_timer.h"
 #include "SDL_video.h"
 
+#define CELL_SIZE       30
+#define WIDTH_IN_CELLS  27
+#define HEIGHT_IN_CELLS 20
 
-#define WINDOW_WIDTH    800
-#define WINDOW_HEIGHT   600
-#define OBJECT_SIZE     60
+typedef struct
+{
+   int         CellSize;
+   int         Width;
+   int         Height;
+   SDL_Color   BgColor;
+   SDL_Color   GridColor;
+} GAME_FIELD;
 
-SDL_Window*     gWindow = NULL;
-SDL_Renderer*   gRenderer = NULL;
 
+
+SDL_Window *gWindow = NULL;
+SDL_Renderer *gRenderer = NULL;
 
 int SdlInit()
 {
-    if (SDL_InitSubSystem(SDL_INIT_VIDEO))
-    {
-        SDL_Log("SDL_InitSubSystem VIDEO Error!");
-        return 1;
-    }
+   if (SDL_InitSubSystem(SDL_INIT_VIDEO))
+   {
+      SDL_Log("SDL_InitSubSystem VIDEO Error!");
+      SDL_Log("%s", SDL_GetError());
+      return 1;
+   }
 
-    if (SDL_Init(SDL_INIT_EVERYTHING))
-    {
-        SDL_Log("SDL_Init Error!");
-        return 1;
-    }
-        
-    return 0;
+   if (SDL_Init(SDL_INIT_EVERYTHING))
+   {
+      SDL_Log("SDL_Init Error!");
+      SDL_Log("%s", SDL_GetError());
+      return 1;
+   }
+
+   return 0;
 }
 
-int RenderObject(const SDL_Renderer* Renderer)
+
+int DrawFieldGrid(
+   SDL_Renderer*  Renderer,
+   const GAME_FIELD*    Field)
 {
-    if (!Renderer)
-    {
-        return 1;
-    }
+   int res = 0;
 
+   do
+   {
+      if (NULL == Field)
+      {
+         res = 1;
+         break;
+      }
 
-    // Background
-    int status = SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
-    if (status) { return status; }
+      // Draw grid background
+      res = SDL_SetRenderDrawColor(
+                           Renderer, 
+                           Field->BgColor.r,
+                           Field->BgColor.g,
+                           Field->BgColor.b,
+                           Field->BgColor.a);
+      if (res) { break; }
+      res = SDL_RenderClear(Renderer);
+      if (res) { break; }
 
-    status = SDL_RenderClear(gRenderer);
-    if (status) { return status; }
+      // Draw grid lines
+      res = SDL_SetRenderDrawColor(
+                           Renderer, 
+                           Field->GridColor.r,
+                           Field->GridColor.g,
+                           Field->GridColor.b,
+                           Field->GridColor.a);
+      if (res) { break; }
 
-    // Object
-    SDL_FRect object = { 
-            (float)((WINDOW_WIDTH - OBJECT_SIZE) / 2),
-            (float)((WINDOW_HEIGHT - OBJECT_SIZE) / 2),
-            OBJECT_SIZE,
-            OBJECT_SIZE };
+      // Vertical lines
+      for (int x = Field->CellSize; x < Field->Width; x += Field->CellSize)
+      {
+         res = SDL_RenderLine(Renderer, x, 0, x, Field->Height);
+         if (res) { break; }
+      }
+      if (res) { break; }
 
-    status = SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
-    if (status) { return status; }
+      // Vertical lines
+      for (int y = Field->CellSize; y < Field->Height; y += Field->CellSize)
+      {
+         res = SDL_RenderLine(Renderer, 0, y, Field->Width, y);
+         if (res) { break; }
+      }
+      if (res) { break; }
 
-    status = SDL_RenderFillRect(gRenderer, &object);
-    if (status) { return status; }
+      res = SDL_RenderPresent(Renderer);
 
-    // General rendering
-    status = SDL_RenderPresent(gRenderer);
-    if (status) { return status; }
-
-    return 0;
+   } while (false);
+   
+   return res;
 }
 
 int main()
 {
-    if (SdlInit()) { return 1; }
+   if (SdlInit())
+   {
+      return 1;
+   }
 
-    gWindow = SDL_CreateWindow("New window", WINDOW_WIDTH, WINDOW_HEIGHT, 0);
-    if (!gWindow)
-    {   
-        SDL_Log("CreateWindow Error!");
-        return 1;
-    }
+   // Game field init
+   GAME_FIELD field = { 
+      CELL_SIZE,                    // Cell Size
+      CELL_SIZE * WIDTH_IN_CELLS,   // Width
+      CELL_SIZE * HEIGHT_IN_CELLS,  // Height
+      {  0, 160,  0, 0},            // BgColor
+      { 20,  20, 20, 0}};           // GridColor
+   
+   gWindow = SDL_CreateWindow("New window", field.Width, field.Height, 0);
+   if (!gWindow)
+   {
+      SDL_Log("CreateWindow Error!");
+      return 1;
+   }
 
-    gRenderer = SDL_CreateRenderer(gWindow, NULL, SDL_RENDERER_PRESENTVSYNC);
-    if (!gRenderer)
-    {
-        SDL_Log("CreateRenderer Error!");
-        return 1;
-    }
+   //  SDL render faster than window creation by OS
+   SDL_Delay(50);
 
-    if (RenderObject(gRenderer))
-    {
-        SDL_Log("Object Render Error!");
-        return 1;
-    }
+   gRenderer = SDL_CreateRenderer(gWindow, NULL, SDL_RENDERER_PRESENTVSYNC);
+   if (!gRenderer)
+   {
+      SDL_Log("CreateRenderer Error!");
+      return 1;
+   }
 
-    SDL_Event event;
-    bool isRunning = true;
-    while (isRunning)
-    {
-        if (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_EVENT_QUIT)
-            {
-                isRunning = false;
-            }
-        }
-    }
+   if (DrawFieldGrid(gRenderer, &field))
+   {
+      SDL_Log("DrawFieldGrid Error!");
+      return 1;
+   }
 
-    SDL_DestroyWindow(gWindow);
-    SDL_Quit();
+   SDL_Event event;
+   bool isRunning = true;
+   while (isRunning)
+   {
+      if (SDL_PollEvent(&event))
+      {
+         if (event.type == SDL_EVENT_QUIT)
+         {
+            isRunning = false;
+         }
+      }
+   }
 
-    return 0;
+   SDL_DestroyWindow(gWindow);
+   SDL_Quit();
+
+   return 0;
 }
