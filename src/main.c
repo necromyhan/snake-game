@@ -23,10 +23,19 @@ typedef struct _GAME_FIELD
 } GAME_FIELD;
 
 
+typedef enum _SNAKE_DIRECTION
+{
+   SnakeDirectionRight = 0,
+   SnakeDirectionLeft,
+   SnakeDirectionUp,
+   SnakeDirectionDown
+} SNAKE_DIRECTION;
+
 typedef struct _SNAKE
 {
-   int         Length;
-   SDL_FRect*  Body;
+   int               Length;
+   SNAKE_DIRECTION   Direction;
+   SDL_FRect*        Body;
 } SNAKE;
 
 
@@ -138,6 +147,7 @@ CreateSnake(const GAME_FIELD* Field)
       SDL_Log("sizeof(*snake->Body) = %d", (int)sizeof(*snake->Body));
    
       snake->Length = 1;
+      snake->Direction = SnakeDirectionRight;
 
       snake->Body[0].h = Field->CellSize;
       snake->Body[0].w = Field->CellSize;
@@ -177,6 +187,75 @@ RenderSnake(
    } while (false);
    
    return res;
+}
+
+int
+MoveSnake(SNAKE* Snake)
+{
+   int res = 0;
+
+   do
+   {
+      if (NULL == Snake) { res = 1; break; }
+
+      int deltaX, deltaY;
+      switch (Snake->Direction)
+      {
+         case SnakeDirectionUp:
+         {
+            deltaX = 0;
+            deltaY = Snake->Body[0].h;
+         }
+         break;
+         case SnakeDirectionDown:
+         {
+            deltaX = 0;
+            deltaY = 0 - Snake->Body[0].h;
+         }
+         break;
+         case SnakeDirectionRight:
+         {
+            deltaX = Snake->Body[0].w;
+            deltaY = 0;
+         }
+         break;
+         case SnakeDirectionLeft:
+         {
+            deltaX = 0 - Snake->Body[0].w;
+            deltaY = 0;
+         }
+         break;
+
+         default:
+         return 1;
+      }
+
+      Snake->Body[0].x += deltaX;
+      Snake->Body[0].y += deltaY;
+
+      for (int i = 1; i < Snake->Length; ++i)
+      {
+         Snake->Body[i].x = Snake->Body[i - 1].x;
+         Snake->Body[i].y = Snake->Body[i - 1].y;
+      }
+
+   } while (false);
+   
+   return res;
+}
+
+bool
+IsPeriodPassed(
+   int  Period,
+   int  LastUpdateTime)
+{
+   int currentTime = SDL_GetTicks();
+   if ((currentTime - LastUpdateTime) >= Period)
+   {
+      return true;
+   }
+
+   return false;
 }
 
 int main()
@@ -226,8 +305,9 @@ int main()
       return 1;
    }
 
-   SDL_Event event;
    bool isRunning = true;
+   int lastFrameTime = 0;
+   SDL_Event event;
    while (isRunning)
    {
       if (SDL_PollEvent(&event))
@@ -237,6 +317,15 @@ int main()
             isRunning = false;
          }
       }
+
+      // WaitTime(300, lastFrameTime);
+      if (IsPeriodPassed(250, lastFrameTime))
+      {
+         MoveSnake(snake);
+         RenderSnake(gRenderer, snake);
+         lastFrameTime = SDL_GetTicks();
+      }
+
    }
 
    DestroySnake(snake);
