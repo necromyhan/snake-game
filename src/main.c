@@ -13,7 +13,7 @@
 #define WIDTH_IN_CELLS  27
 #define HEIGHT_IN_CELLS 20
 
-typedef struct
+typedef struct _GAME_FIELD
 {
    int         CellSize;
    int         Width;
@@ -23,6 +23,14 @@ typedef struct
 } GAME_FIELD;
 
 
+typedef struct _SNAKE
+{
+   int         Length;
+   SDL_FRect*  Body;
+} SNAKE;
+
+
+SDL_FRect rect = { 0 };
 
 SDL_Window *gWindow = NULL;
 SDL_Renderer *gRenderer = NULL;
@@ -47,9 +55,10 @@ int SdlInit()
 }
 
 
-int DrawFieldGrid(
-   SDL_Renderer*  Renderer,
-   const GAME_FIELD*    Field)
+int 
+DrawFieldGrid(
+   SDL_Renderer*     Renderer,
+   const GAME_FIELD* Field)
 {
    int res = 0;
 
@@ -104,6 +113,72 @@ int DrawFieldGrid(
    return res;
 }
 
+SNAKE*
+CreateSnake(const GAME_FIELD* Field)
+{
+   SNAKE* snake = NULL;
+
+   do
+   {
+      if (NULL == Field) { break; }
+
+      snake = SDL_malloc(sizeof(*snake));
+      if (NULL == snake) { break; }
+
+      int cellNumber = (Field->Height / Field->CellSize) * (Field->Width / Field->CellSize);
+      snake->Body = SDL_malloc(cellNumber * sizeof(*snake->Body));
+      if (NULL == snake->Body)
+      {
+         SDL_free(snake);
+         snake = NULL;
+         break;
+      }
+
+      SDL_Log("CcellNumber = %d", cellNumber);
+      SDL_Log("sizeof(*snake->Body) = %d", (int)sizeof(*snake->Body));
+   
+      snake->Length = 1;
+
+      snake->Body[0].h = Field->CellSize;
+      snake->Body[0].w = Field->CellSize;
+      snake->Body[0].x = 0;
+      snake->Body[0].y = 0;
+
+   } while (false);
+
+   return snake;
+}
+
+void
+DestroySnake(SNAKE* Snake)
+{
+   SDL_free(Snake->Body);
+   SDL_free(Snake);
+}
+
+int
+RenderSnake(
+   SDL_Renderer*  Renderer,
+   const SNAKE*   Snake)
+{
+   int res = 0;
+
+   do
+   {
+      if (NULL == Snake) { res = 1; break; }
+
+      res = SDL_SetRenderDrawColor(Renderer, 100, 100, 100, 0);
+      if (res) { break; }
+
+      res = SDL_RenderFillRects(Renderer, Snake->Body, Snake->Length);
+      if (res) { break; }
+
+      res = SDL_RenderPresent(Renderer);
+   } while (false);
+   
+   return res;
+}
+
 int main()
 {
    if (SdlInit())
@@ -142,6 +217,15 @@ int main()
       return 1;
    }
 
+   SNAKE* snake = CreateSnake(&field);
+   if (NULL == snake) { return 1; }
+
+   if (RenderSnake(gRenderer, snake))
+   {
+      SDL_Log("RenderSnake Error!");
+      return 1;
+   }
+
    SDL_Event event;
    bool isRunning = true;
    while (isRunning)
@@ -155,6 +239,8 @@ int main()
       }
    }
 
+   DestroySnake(snake);
+   SDL_DestroyRenderer(gRenderer);
    SDL_DestroyWindow(gWindow);
    SDL_Quit();
 
