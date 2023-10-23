@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include <SDL.h>
 #include "SDL_events.h"
@@ -20,6 +21,7 @@ typedef struct _GAME_FIELD
    int         Height;
    SDL_Color   BgColor;
    SDL_Color   GridColor;
+   SDL_FRect   Apple;
 } GAME_FIELD;
 
 
@@ -175,17 +177,16 @@ RenderSnake(
    {
       if (NULL == Snake) { res = 1; break; }
 
-      res = SDL_SetRenderDrawColor(Renderer, 60, 60, 60, 0);
-      if (res) { break; }
-
-      res = SDL_RenderFillRect(Renderer, &Snake->Body[0]);
-
       res = SDL_SetRenderDrawColor(Renderer, 100, 100, 100, 0);
       if (res) { break; }
 
       res = SDL_RenderFillRects(Renderer, &Snake->Body[1], Snake->Length - 1);
       if (res) { break; }
 
+      res = SDL_SetRenderDrawColor(Renderer, 60, 60, 60, 0);
+      if (res) { break; }
+
+      res = SDL_RenderFillRect(Renderer, &Snake->Body[0]);
    } while (false);
    
    return res;
@@ -235,21 +236,61 @@ MoveSnake(
          return 1;
       }
 
+      for (int i = Snake->Length - 1; i > 0; --i)
+      {
+         Snake->Body[i].x = Snake->Body[i - 1].x;
+         Snake->Body[i].y = Snake->Body[i - 1].y;
+      }
       Snake->Body[0].x += deltaX;
       Snake->Body[0].y += deltaY;
 
       Snake->Body[0].x = (int)(Snake->Body[0].x + Field->Width) % Field->Width;
       Snake->Body[0].y = (int)(Snake->Body[0].y + Field->Height) % Field->Height;
 
-      for (int i = 1; i < Snake->Length; ++i)
-      {
-         Snake->Body[i].x = Snake->Body[i - 1].x;
-         Snake->Body[i].y = Snake->Body[i - 1].y;
-      }
 
    } while (false);
    
    return res;
+}
+
+bool
+IsApple(
+   SNAKE*      Snake,
+   GAME_FIELD* Field)
+{
+   return SDL_HasRectIntersectionFloat(&Snake->Body[0], &Field->Apple);
+}
+
+void
+GrowSnake(
+   SNAKE*   Snake,
+   float    X,
+   float    Y)
+{
+   Snake->Body[Snake->Length].h = Snake->Body[0].h;
+   Snake->Body[Snake->Length].w = Snake->Body[0].w;
+   Snake->Body[Snake->Length].x = X;
+   Snake->Body[Snake->Length].y = Y;
+
+   Snake->Length += 1;
+}
+
+void
+Update(
+   SNAKE*      Snake,
+   GAME_FIELD* Field)
+{
+   if (IsApple(Snake, Field))
+   {
+      float oldX = Snake->Body[0].x;
+      float oldy = Snake->Body[0].y;
+      MoveSnake(Snake, Field);
+      GrowSnake(Snake, oldX, oldy);
+   }
+   else
+   {
+      MoveSnake(Snake, Field);
+   }
 }
 
 bool
@@ -266,6 +307,21 @@ IsPeriodPassed(
    return false;
 }
 
+void
+InitApple(
+   GAME_FIELD* Field)
+{
+   int xCell = rand() % ((Field->Width / Field->CellSize) + 1);
+   int yCell = rand() % ((Field->Height / Field->CellSize) + 1);
+
+   Field->Apple.x = xCell * Field->CellSize + Field->CellSize / 4;
+   Field->Apple.y = yCell * Field->CellSize + Field->CellSize / 4;
+
+   Field->Apple.h = Field->CellSize / 2;
+   Field->Apple.w = Field->CellSize / 2;
+}
+
+
 int Render(
    SDL_Renderer*     Renderer,
    const GAME_FIELD* Field,
@@ -280,6 +336,11 @@ int Render(
 
       res = CreatFieldGrid(Renderer, Field);
       if (res) { break; }
+
+      res = SDL_SetRenderDrawColor(Renderer, 200, 0, 0, 0);
+      if (res) { break; }
+
+      res = SDL_RenderFillRect(Renderer, &Field->Apple);
 
       res = RenderSnake(Renderer, Snake);
       if (res) { break; }
@@ -304,7 +365,8 @@ int main()
       CELL_SIZE * WIDTH_IN_CELLS,   // Width
       CELL_SIZE * HEIGHT_IN_CELLS,  // Height
       {  0, 160,  0, 0},            // BgColor
-      { 20,  20, 20, 0}};           // GridColor
+      { 20,  20, 20, 0},            // GridColor
+      {  0,   0,  0, 0}};           // Apple
    
    gWindow = SDL_CreateWindow("New window", field.Width, field.Height, 0);
    if (!gWindow)
@@ -325,6 +387,8 @@ int main()
 
    SNAKE* snake = CreateSnake(&field);
    if (NULL == snake) { return 1; }
+
+   InitApple(&field);
 
    bool isRunning = true;
    bool inputHandled = false;
@@ -393,7 +457,7 @@ int main()
       // WaitTime(300, lastFrameTime);
       if (IsPeriodPassed(250, lastFrameTime))
       {
-         MoveSnake(snake, &field);
+         Update(snake, &field);
          Render(gRenderer, &field, snake);
          inputHandled = false;
          lastFrameTime = SDL_GetTicks();
