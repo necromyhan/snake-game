@@ -115,6 +115,26 @@ GrowSnake(
    Snake->Length += 1;
 }
 
+bool
+IsSnakeIntersection(
+   const SNAKE*   Snake)
+{
+   bool intersec = false;
+
+   do
+   {
+      for (int i = 1; i < Snake->Length; ++i)
+      {
+         if ((intersec = SDL_HasRectIntersectionFloat(&Snake->Body[0], &Snake->Body[i])))
+         {
+            break;  
+         }
+      }
+   } while (false);
+
+   return intersec; 
+}
+
 int
 RenderSnake(
    SDL_Renderer*  Renderer,

@@ -288,6 +288,11 @@ int main()
          Render(gRenderer, &field, snake, &apple);
          inputHandled = false;
          lastFrameTime = SDL_GetTicks();
+         if (IsSnakeIntersection(snake))
+         {
+            isRunning = false;
+            SDL_Log("GAME OVER!");
+         }
       }
 
    }

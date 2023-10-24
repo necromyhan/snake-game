@@ -42,6 +42,10 @@ void
 GrowSnake(
    SNAKE*   Snake);
 
+bool
+IsSnakeIntersection(
+   const SNAKE*   Snake);
+
 int
 RenderSnake(
    SDL_Renderer*  Renderer,

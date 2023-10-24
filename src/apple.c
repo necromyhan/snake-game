@@ -27,8 +27,6 @@ UpdateApplePosition(
    int xCell = rand() % WidthInCells;
    int yCell = rand() % HeightInCell;
 
-   SDL_Log("xCell = %d, yCell = %d", xCell, yCell);
-
    Apple->Body.x = xCell * CellSize + CellSize / 4;
    Apple->Body.y = yCell * CellSize + CellSize / 4;
 
