@@ -114,3 +114,29 @@ GrowSnake(
 
    Snake->Length += 1;
 }
+
+int
+RenderSnake(
+   SDL_Renderer*  Renderer,
+   const SNAKE*   Snake)
+{
+   int res = 0;
+
+   do
+   {
+      if (NULL == Snake) { res = 1; break; }
+
+      res = SDL_SetRenderDrawColor(Renderer, 100, 100, 100, 0);
+      if (res) { break; }
+
+      res = SDL_RenderFillRects(Renderer, &Snake->Body[1], Snake->Length - 1);
+      if (res) { break; }
+
+      res = SDL_SetRenderDrawColor(Renderer, 60, 60, 60, 0);
+      if (res) { break; }
+
+      res = SDL_RenderFillRect(Renderer, &Snake->Body[0]);
+   } while (false);
+   
+   return res;
+}

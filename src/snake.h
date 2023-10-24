@@ -1,6 +1,6 @@
 #pragma once
-
 #include "SDL_rect.h"
+#include "SDL_render.h"
 
 /// enum SNAKE_DIRECTION
 /// Snake movement directions
@@ -41,3 +41,8 @@ MoveSnake(
 void
 GrowSnake(
    SNAKE*   Snake);
+
+int
+RenderSnake(
+   SDL_Renderer*  Renderer,
+   const SNAKE*   Snake);
