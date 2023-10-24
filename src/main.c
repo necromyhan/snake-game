@@ -10,6 +10,8 @@
 #include "SDL_timer.h"
 #include "SDL_video.h"
 
+#include "snake.h"
+
 #define CELL_SIZE       30
 #define WIDTH_IN_CELLS  27
 #define HEIGHT_IN_CELLS 20
@@ -24,24 +26,6 @@ typedef struct _GAME_FIELD
    SDL_FRect   Apple;
 } GAME_FIELD;
 
-
-typedef enum _SNAKE_DIRECTION
-{
-   SnakeDirectionRight = 0,
-   SnakeDirectionLeft,
-   SnakeDirectionUp,
-   SnakeDirectionDown
-} SNAKE_DIRECTION;
-
-typedef struct _SNAKE
-{
-   int               Length;
-   SNAKE_DIRECTION   Direction;
-   SDL_FRect*        Body;
-} SNAKE;
-
-
-SDL_FRect rect = { 0 };
 
 SDL_Window *gWindow = NULL;
 SDL_Renderer *gRenderer = NULL;
@@ -122,50 +106,6 @@ CreatFieldGrid(
    return res;
 }
 
-SNAKE*
-CreateSnake(const GAME_FIELD* Field)
-{
-   SNAKE* snake = NULL;
-
-   do
-   {
-      if (NULL == Field) { break; }
-
-      snake = SDL_malloc(sizeof(*snake));
-      if (NULL == snake) { break; }
-
-      int cellNumber = (Field->Height / Field->CellSize) * (Field->Width / Field->CellSize);
-      snake->Body = SDL_malloc(cellNumber * sizeof(*snake->Body));
-      if (NULL == snake->Body)
-      {
-         SDL_free(snake);
-         snake = NULL;
-         break;
-      }
-
-      SDL_Log("CcellNumber = %d", cellNumber);
-      SDL_Log("sizeof(*snake->Body) = %d", (int)sizeof(*snake->Body));
-   
-      snake->Length = 1;
-      snake->Direction = SnakeDirectionRight;
-
-      snake->Body[0].h = Field->CellSize;
-      snake->Body[0].w = Field->CellSize;
-      snake->Body[0].x = 0;
-      snake->Body[0].y = 0;
-
-   } while (false);
-
-   return snake;
-}
-
-void
-DestroySnake(SNAKE* Snake)
-{
-   SDL_free(Snake->Body);
-   SDL_free(Snake);
-}
-
 int
 RenderSnake(
    SDL_Renderer*  Renderer,
@@ -192,66 +132,6 @@ RenderSnake(
    return res;
 }
 
-int
-MoveSnake(
-   SNAKE*      Snake,
-   GAME_FIELD* Field)
-{
-   int res = 0;
-
-   do
-   {
-      if (NULL == Snake) { res = 1; break; }
-      if (NULL == Field) { res = 1; break; }
-
-      int deltaX, deltaY;
-      switch (Snake->Direction)
-      {
-         case SnakeDirectionUp:
-         {
-            deltaX = 0;
-            deltaY = 0 - Snake->Body[0].h;
-         }
-         break;
-         case SnakeDirectionDown:
-         {
-            deltaX = 0;
-            deltaY = Snake->Body[0].h;
-         }
-         break;
-         case SnakeDirectionRight:
-         {
-            deltaX = Snake->Body[0].w;
-            deltaY = 0;
-         }
-         break;
-         case SnakeDirectionLeft:
-         {
-            deltaX = 0 - Snake->Body[0].w;
-            deltaY = 0;
-         }
-         break;
-
-         default:
-         return 1;
-      }
-
-      for (int i = Snake->Length - 1; i > 0; --i)
-      {
-         Snake->Body[i].x = Snake->Body[i - 1].x;
-         Snake->Body[i].y = Snake->Body[i - 1].y;
-      }
-      Snake->Body[0].x += deltaX;
-      Snake->Body[0].y += deltaY;
-
-      Snake->Body[0].x = (int)(Snake->Body[0].x + Field->Width) % Field->Width;
-      Snake->Body[0].y = (int)(Snake->Body[0].y + Field->Height) % Field->Height;
-
-
-   } while (false);
-   
-   return res;
-}
 
 bool
 IsApple(
@@ -261,19 +141,7 @@ IsApple(
    return SDL_HasRectIntersectionFloat(&Snake->Body[0], &Field->Apple);
 }
 
-void
-GrowSnake(
-   SNAKE*   Snake,
-   float    X,
-   float    Y)
-{
-   Snake->Body[Snake->Length].h = Snake->Body[0].h;
-   Snake->Body[Snake->Length].w = Snake->Body[0].w;
-   Snake->Body[Snake->Length].x = X;
-   Snake->Body[Snake->Length].y = Y;
 
-   Snake->Length += 1;
-}
 
 void
 Update(
@@ -284,13 +152,9 @@ Update(
    {
       float oldX = Snake->Body[0].x;
       float oldy = Snake->Body[0].y;
-      MoveSnake(Snake, Field);
-      GrowSnake(Snake, oldX, oldy);
+      GrowSnake(Snake);
    }
-   else
-   {
-      MoveSnake(Snake, Field);
-   }
+   MoveSnake(Snake, (int)Field->Width, (int)Field->Height);
 }
 
 bool
@@ -385,7 +249,11 @@ int main()
       return 1;
    }
 
-   SNAKE* snake = CreateSnake(&field);
+   SNAKE* snake = CreateSnake(
+                     field.CellSize,
+                     WIDTH_IN_CELLS * HEIGHT_IN_CELLS,
+                     5,
+                     5);
    if (NULL == snake) { return 1; }
 
    InitApple(&field);
