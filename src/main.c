@@ -12,6 +12,7 @@
 
 #include "snake.h"
 #include "apple.h"
+#include "font.h"
 
 #define CELL_SIZE       40
 #define WIDTH_IN_CELLS  20
@@ -213,6 +214,7 @@ int main()
                      5,
                      5);
    if (NULL == snake) { return 1; }
+
 
    APPLE apple;
    InitApple(&apple, snake, field.CellSize, WIDTH_IN_CELLS, HEIGHT_IN_CELLS);

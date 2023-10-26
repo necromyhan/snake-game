@@ -32,7 +32,12 @@ CreateSnake(
       snake->Body[0].x = StartCellX * CellSize;
       snake->Body[0].y = StartCellY * CellSize;
 
-      snake->Length = 1;
+      snake->Body[1].h = CellSize;
+      snake->Body[1].w = CellSize;
+      snake->Body[1].x = (StartCellX - 1) * CellSize;
+      snake->Body[1].y = StartCellY * CellSize;
+
+      snake->Length = 2;
       snake->Direction = SnakeDirectionRight;
    } while (false);
 
