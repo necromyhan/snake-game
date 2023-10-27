@@ -163,7 +163,9 @@ int Render(
    {
       res = CreatFieldGrid(Renderer, Field);
       if (res) { break; }
-      
+
+      // SDL_SetRenderClipRect(Renderer, &(SDL_Rect){ .x = 0, .y = 0 , .w = 400, .h = 400});
+
       res = RenderApple(Renderer, Apple);
       if (res) { break; }
 

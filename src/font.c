@@ -5,62 +5,113 @@
 #include "SDL_render.h"
 
 
-int
-InitFont(
-   SDL_Renderer*  Renderer)
+typedef struct _FONT
 {
-   int res = 0;
+   TTF_Font*   TtfFont;
+   int         Size;
+   SDL_Color   Color;
+} FONT;
 
-   do
+FONT*
+CreateFont(
+   const char* Name,
+   int         Size,
+   SDL_Color   Color)
+{
+   FONT* font = NULL;
+
+   if (TTF_Init())
    {
-      res = TTF_Init();
-      if (res)
-      {
-         SDL_Log("TTF_Init error!");
-         break;
-      }
+      SDL_Log("TTF_Init error = %s", SDL_GetError());
+      goto exit;
+   }
 
-      TTF_Font* font = TTF_OpenFont("Mork_Dungeon.ttf", 24);
-      if (NULL == font)
-      {
-         SDL_Log("TTF_OpenFont error = %s", SDL_GetError());
-      }
+   font = SDL_malloc(sizeof(*font));
+   if (NULL == font)
+   {
+      SDL_Log("SDL_malloc error!");
+      goto exit;
+   }
 
-      SDL_Color color = { 255, 255, 255 };
-      SDL_Surface* surface = TTF_RenderText_Solid(font, "Text Text!", color);
-      if (NULL == font)
-      {
-         SDL_Log("TTF_OpenFont error = %s", SDL_GetError());
-      }
+   font->TtfFont = TTF_OpenFont(Name, Size);
+   if (NULL == font->TtfFont )
+   {
+      SDL_Log("TTF_OpenFont error = %s", SDL_GetError());
+      SDL_free(font);
+      font = NULL;
+      goto exit;
+   }
 
-      SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, surface);
-      if (NULL == texture)
-      {
-         SDL_Log("SDL_CreateTextureFromSurface error = %s", SDL_GetError());
-      }
-
-
-      int w, h;
-      res = SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-      if (res)
-      {
-         SDL_Log("SDL_QueryTexture error = %s", SDL_GetError());
-         break;
-      }
-
-      SDL_FRect rect = { 0, 0, w, h };
-
-
-      res = SDL_RenderTexture(Renderer, texture, NULL, &rect);
-      if (res)
-      {
-         SDL_Log("SDL_RenderTexture error = %s", SDL_GetError());
-         break;
-      }
-
-      SDL_RenderPresent(Renderer);
-
-   } while (false);
+   font->Color = Color;
+   font->Size = Size;
    
-   return res;
+exit:
+   return font;
+}
+
+void
+DestroyFont(FONT* Font)
+{
+   if (Font)
+   {
+      TTF_CloseFont(Font->TtfFont);
+      SDL_free(Font);
+      TTF_Quit();
+   }
+}
+
+int
+PrintFontToRenderer(
+   const FONT*    Font,
+   SDL_Renderer*  Renderer,
+   const char*    Text,
+   SDL_Point      Position)
+{
+   int status = 0;
+
+   if (NULL == Font || NULL == Renderer)
+   {
+      status = 1;
+      goto exit;
+   }
+
+   SDL_Surface* surface = TTF_RenderText_Solid(Font->TtfFont, Text, Font->Color);
+   if (NULL == surface)
+   {
+      SDL_Log("TTF_RenderText_Solid error = %s", SDL_GetError());
+      status = 1;
+      goto exit;
+   }
+
+   SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, surface);
+   if (NULL == texture)
+   {
+      SDL_Log("SDL_CreateTextureFromSurface error = %s", SDL_GetError());
+      status = 1;
+      goto exit;
+   }
+
+   int w, h;
+   status = SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+   if (status)
+   {
+      SDL_Log("SDL_QueryTexture error = %s", SDL_GetError());
+      goto exit;
+   }
+
+   status = SDL_RenderTexture(
+                     Renderer,
+                     texture,
+                     NULL,
+                     &(SDL_FRect){ Position.x, Position.y, w, h });
+   if (status)
+   {
+      SDL_Log("SDL_RenderTexture error = %s", SDL_GetError());
+      goto exit;
+   }
+
+exit:
+   SDL_DestroySurface(surface);
+   SDL_DestroyTexture(texture);
+   return status;
 }
