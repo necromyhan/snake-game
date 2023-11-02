@@ -13,23 +13,8 @@
 #include "snake.h"
 #include "apple.h"
 #include "font.h"
+#include "field.h"
 
-#define CELL_SIZE       40
-#define WIDTH_IN_CELLS  20
-#define HEIGHT_IN_CELLS 15
-
-typedef struct _GAME_FIELD
-{
-   int         CellSize;
-   int         Width;
-   int         Height;
-   SDL_Color   BgColor;
-   SDL_Color   GridColor;
-} GAME_FIELD;
-
-
-SDL_Window *gWindow = NULL;
-SDL_Renderer *gRenderer = NULL;
 
 int SdlInit()
 {
@@ -51,75 +36,6 @@ int SdlInit()
 }
 
 
-int 
-CreatFieldGrid(
-   SDL_Renderer*     Renderer,
-   const GAME_FIELD* Field)
-{
-   int res = 0;
-
-   do
-   {
-      if (NULL == Field)
-      {
-         res = 1;
-         break;
-      }
-
-      // Draw grid background
-      res = SDL_SetRenderDrawColor(
-                           Renderer, 
-                           Field->BgColor.r,
-                           Field->BgColor.g,
-                           Field->BgColor.b,
-                           Field->BgColor.a);
-      if (res) { break; }
-      res = SDL_RenderClear(Renderer);
-      if (res) { break; }
-
-      // // Draw grid lines
-      res = SDL_SetRenderDrawColor(
-                           Renderer, 
-                           Field->GridColor.r,
-                           Field->GridColor.g,
-                           Field->GridColor.b,
-                           Field->GridColor.a);
-      if (res) { break; }
-
-      // // Vertical lines
-      for (int x = Field->CellSize; x < Field->Width; x += Field->CellSize)
-      {
-         // res = SDL_RenderLine(Renderer, x + 2, 0, x + 2, Field->Height - 1);
-         // if (res) { break; }
-
-         // res = SDL_RenderLine(Renderer, x + 1, 0, x + 1, Field->Height - 1);
-         // if (res) { break; }
-
-         res = SDL_RenderLine(Renderer, x, 0, x, Field->Height - 1);
-         if (res) { break; }
-      }
-      if (res) { break; }
-
-      // // Vertical lines
-      for (int y = Field->CellSize; y < Field->Height; y += Field->CellSize)
-      {
-         // res = SDL_RenderLine(Renderer, 0, y + 2, Field->Width - 1, y + 2);
-         // if (res) { break; }
-
-         // res = SDL_RenderLine(Renderer, 0, y + 1, Field->Width - 1, y + 1);
-         // if (res) { break; }
-         
-         res = SDL_RenderLine(Renderer, 0, y, Field->Width - 1, y);
-         if (res) { break; }
-      }
-      if (res) { break; }
-
-   } while (false);
-   
-   return res;
-}
-
-
 void
 Update(
    SNAKE*      Snake,
@@ -131,9 +47,9 @@ Update(
       float oldX = Snake->Body[0].x;
       float oldy = Snake->Body[0].y;
       GrowSnake(Snake);
-      UpdateApplePosition(Apple, Snake, Field->CellSize, WIDTH_IN_CELLS, HEIGHT_IN_CELLS);
+      UpdateApplePosition(Apple, Snake, Field->CellSize, Field->WidthInCells, Field->HeightInCells);
    }
-   MoveSnake(Snake, (int)Field->Width, (int)Field->Height);
+   MoveSnake(Snake, Field->WidthInCells * Field->CellSize, Field->HeightInCells * Field->CellSize);
 }
 
 bool
@@ -159,22 +75,37 @@ int Render(
 {
    int res = 0;
 
-   do
-   {
-      res = CreatFieldGrid(Renderer, Field);
-      if (res) { break; }
+   // SDL_SetRenderCliхаpRect(Renderer, &(SDL_Rect){ .x = 0, .y = 0 , .w = 400, .h = 400});
+   // SDL_RenderTexture();
+   SDL_Rect fieldRect = {
+               Field->CellSize,
+               Field->CellSize,
+               Field->WidthInCells * Field->CellSize,
+               Field->HeightInCells * Field->CellSize };
 
-      // SDL_SetRenderClipRect(Renderer, &(SDL_Rect){ .x = 0, .y = 0 , .w = 400, .h = 400});
+   res = SDL_SetRenderViewport(Renderer, &fieldRect);
+   if (res) { goto exit; }
 
-      res = RenderApple(Renderer, Apple);
-      if (res) { break; }
+   res = SDL_SetRenderDrawColor(Renderer, 0, 100, 0, 0);
+   if (res) { goto exit; }
 
-      res = RenderSnake(Renderer, Snake);
-      if (res) { break; }
+   res = SDL_RenderFillRect(
+               Renderer,
+               &(SDL_FRect){ 
+                  0, 0, 
+                  Field->WidthInCells * Field->CellSize,
+                  Field->HeightInCells * Field->CellSize});
+   if (res) { goto exit; }
 
-      res = SDL_RenderPresent(Renderer);
-   } while (false);
+   res = RenderApple(Renderer, Apple);
+   if (res) { goto exit; }
+
+   res = RenderSnake(Renderer, Snake);
+   if (res) { goto exit; }
+
+   res = SDL_RenderPresent(Renderer);
    
+exit:
    return res;
 }
 
@@ -186,40 +117,40 @@ int main()
    }
 
    // Game field init
-   GAME_FIELD field = { 
-      CELL_SIZE,                    // Cell Size
-      CELL_SIZE * WIDTH_IN_CELLS,   // Width
-      CELL_SIZE * HEIGHT_IN_CELLS,  // Height
-      {  0, 160,  0, 0},            // BgColor
-      { 20,  20, 20, 0} };          // GridColor
+   GAME_FIELD* field = CreateGameField(40, 16, 12);
+   if (NULL == field) { goto exit; }
    
-   gWindow = SDL_CreateWindow("New window", field.Width, field.Height, 0);
-   if (!gWindow)
+   SDL_Window* window = SDL_CreateWindow(
+                     "SNAKE",
+                     field->CellSize * field->WidthInCells + 2 * field->CellSize,
+                     field->CellSize * field->HeightInCells + 4 * field->CellSize,
+                     0);
+   if (!window)
    {
       SDL_Log("CreateWindow Error!");
-      return 1;
+      goto exit;
    }
 
    //  SDL render faster than window creation by OS
    SDL_Delay(50);
 
-   gRenderer = SDL_CreateRenderer(gWindow, NULL, SDL_RENDERER_PRESENTVSYNC);
-   if (!gRenderer)
+   SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL, SDL_RENDERER_PRESENTVSYNC);
+   if (!renderer)
    {
       SDL_Log("CreateRenderer Error!");
       return 1;
    }
 
    SNAKE* snake = CreateSnake(
-                     field.CellSize,
-                     WIDTH_IN_CELLS * HEIGHT_IN_CELLS,
+                     field->CellSize,
+                     field->WidthInCells * field->HeightInCells,
                      5,
                      5);
    if (NULL == snake) { return 1; }
 
 
    APPLE apple;
-   InitApple(&apple, snake, field.CellSize, WIDTH_IN_CELLS, HEIGHT_IN_CELLS);
+   InitApple(&apple, snake, field->CellSize, field->WidthInCells, field->HeightInCells);
 
    bool isRunning = true;
    bool inputHandled = false;
@@ -288,8 +219,8 @@ int main()
       // WaitTime(300, lastFrameTime);
       if (IsPeriodPassed(200, lastFrameTime))
       {
-         Update(snake, &apple, &field);
-         Render(gRenderer, &field, snake, &apple);
+         Update(snake, &apple, field);
+         Render(renderer, field, snake, &apple);
          inputHandled = false;
          lastFrameTime = SDL_GetTicks();
          if (IsSnakeIntersection(snake))
@@ -301,9 +232,11 @@ int main()
 
    }
 
+
+exit:
    DestroySnake(snake);
-   SDL_DestroyRenderer(gRenderer);
-   SDL_DestroyWindow(gWindow);
+   SDL_DestroyRenderer(renderer);
+   SDL_DestroyWindow(window);
    SDL_Quit();
 
    return 0;
