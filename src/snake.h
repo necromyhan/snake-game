@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __SNAKE_GAME_SNAKE_H__
+#define __SNAKE_GAME_SNAKE_H__
+
 #include "SDL_rect.h"
 #include "SDL_render.h"
 
@@ -50,3 +52,5 @@ int
 RenderSnake(
    SDL_Renderer*  Renderer,
    const SNAKE*   Snake);
+
+#endif //__SNAKE_GAME_SNAKE_H__

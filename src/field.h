@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __SNAKE_GAME_FIELD_H__
+#define __SNAKE_GAME_FIELD_H__
 
 #include <SDL.h>
 
@@ -14,3 +15,5 @@ CreateGameField(
    int CellSize,
    int WidthInCells,
    int HeightInCells);
+
+#endif //__SNAKE_GAME_FIELD_H__

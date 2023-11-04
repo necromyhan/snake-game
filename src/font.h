@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __SNAKE_GAME_FONT_H__
+#define __SNAKE_GAME_FONT_H__
+
 #include <SDL3_ttf/SDL_ttf.h>
 
 
@@ -19,3 +21,5 @@ PrintFontToRenderer(
    SDL_Renderer*  Renderer,
    const char*    Text,
    SDL_Point      Position);
+
+#endif //__SNAKE_GAME_FONT_H__

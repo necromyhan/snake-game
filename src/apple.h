@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __SNAKE_GAME_APPLE_H__
+#define __SNAKE_GAME_APPLE_H__
+
 #include "SDL_rect.h"
 
 #include "snake.h"
@@ -32,3 +34,5 @@ int
 RenderApple(
    SDL_Renderer*  Renderer,
    const APPLE*   Apple);
+
+#endif //__SNAKE_GAME_APPLE_H__
