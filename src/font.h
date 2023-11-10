@@ -2,7 +2,7 @@
 #define __SNAKE_GAME_FONT_H__
 
 #include <SDL3_ttf/SDL_ttf.h>
-
+#include <SDL3_image/SDL_image.h>
 
 typedef struct _FONT FONT;
 

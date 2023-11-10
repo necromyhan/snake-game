@@ -4,7 +4,6 @@
 #include "font.h"
 #include "SDL_render.h"
 
-
 typedef struct _FONT
 {
    TTF_Font*   TtfFont;
