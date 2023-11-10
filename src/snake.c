@@ -12,35 +12,33 @@ CreateSnake(
 {
    SNAKE *snake = NULL;
 
-   do
+   snake = SDL_malloc(sizeof(*snake));
+   if (NULL == snake) { goto exit; }
+
+   snake->Body = SDL_malloc(CellCount * sizeof(*snake->Body));
+   if (NULL == snake->Body)
    {
-      snake = SDL_malloc(sizeof(*snake));
-      if (NULL == snake) { break; }
+      SDL_free(snake);
+      snake = NULL;
+      goto exit;
+   }
 
-      snake->Body = SDL_malloc(CellCount * sizeof(*snake->Body));
-      if (NULL == snake->Body)
-      {
-         SDL_free(snake);
-         snake = NULL;
-         break;
-      }
+   SDL_memset(snake->Body, 0x00, sizeof(*snake->Body));
 
-      SDL_memset(snake->Body, 0x00, sizeof(*snake->Body));
+   snake->Body[0].h = CellSize;
+   snake->Body[0].w = CellSize;
+   snake->Body[0].x = StartCellX * CellSize;
+   snake->Body[0].y = StartCellY * CellSize;
 
-      snake->Body[0].h = CellSize;
-      snake->Body[0].w = CellSize;
-      snake->Body[0].x = StartCellX * CellSize;
-      snake->Body[0].y = StartCellY * CellSize;
+   snake->Body[1].h = CellSize;
+   snake->Body[1].w = CellSize;
+   snake->Body[1].x = (StartCellX - 1) * CellSize;
+   snake->Body[1].y = StartCellY * CellSize;
 
-      snake->Body[1].h = CellSize;
-      snake->Body[1].w = CellSize;
-      snake->Body[1].x = (StartCellX - 1) * CellSize;
-      snake->Body[1].y = StartCellY * CellSize;
+   snake->Length = 2;
+   snake->Direction = SnakeDirectionRight;
 
-      snake->Length = 2;
-      snake->Direction = SnakeDirectionRight;
-   } while (false);
-
+exit:
    return snake;
 }
 
@@ -56,56 +54,53 @@ MoveSnake(
    int      FieldWidth,
    int      FieldHeight)
 {
-   int res = 0;
+   if (NULL == Snake) { goto exit; }
 
-   do
+   int deltaX, deltaY;
+   switch (Snake->Direction)
    {
-      if (NULL == Snake) { res = 1; break; }
-
-      int deltaX, deltaY;
-      switch (Snake->Direction)
+      case SnakeDirectionUp:
       {
-         case SnakeDirectionUp:
-         {
-            deltaX = 0;
-            deltaY = 0 - Snake->Body[0].h;
-            break;
-         }
-         case SnakeDirectionDown:
-         {
-            deltaX = 0;
-            deltaY = Snake->Body[0].h;
-            break;
-         }
-         case SnakeDirectionRight:
-         {
-            deltaX = Snake->Body[0].w;
-            deltaY = 0;
-            break;
-         }
-         case SnakeDirectionLeft:
-         {
-            deltaX = 0 - Snake->Body[0].w;
-            deltaY = 0;
-            break;
-         }
-         default:
-         {
-            return;
-         }
+         deltaX = 0;
+         deltaY = 0 - Snake->Body[0].h;
+         break;
       }
-
-      for (int i = Snake->Length - 1; i > 0; --i)
+      case SnakeDirectionDown:
       {
-         Snake->Body[i].x = Snake->Body[i - 1].x;
-         Snake->Body[i].y = Snake->Body[i - 1].y;
+         deltaX = 0;
+         deltaY = Snake->Body[0].h;
+         break;
       }
+      case SnakeDirectionRight:
+      {
+         deltaX = Snake->Body[0].w;
+         deltaY = 0;
+         break;
+      }
+      case SnakeDirectionLeft:
+      {
+         deltaX = 0 - Snake->Body[0].w;
+         deltaY = 0;
+         break;
+      }
+      default:
+      {
+         goto exit;
+      }
+   }
 
-      Snake->Body[0].x += deltaX;
-      Snake->Body[0].y += deltaY;
-      Snake->Body[0].x = (int)(Snake->Body[0].x + FieldWidth) % FieldWidth;
-      Snake->Body[0].y = (int)(Snake->Body[0].y + FieldHeight) % FieldHeight;
-   } while (false);
+   for (int i = Snake->Length - 1; i > 0; --i)
+   {
+      Snake->Body[i].x = Snake->Body[i - 1].x;
+      Snake->Body[i].y = Snake->Body[i - 1].y;
+   }
+
+   Snake->Body[0].x += deltaX;
+   Snake->Body[0].y += deltaY;
+   Snake->Body[0].x = (int)(Snake->Body[0].x + FieldWidth) % FieldWidth;
+   Snake->Body[0].y = (int)(Snake->Body[0].y + FieldHeight) % FieldHeight;
+
+   exit: ;
 }
 
 void
@@ -126,16 +121,13 @@ IsSnakeIntersection(
 {
    bool intersec = false;
 
-   do
+   for (int i = 1; i < Snake->Length; ++i)
    {
-      for (int i = 1; i < Snake->Length; ++i)
+      if ((intersec = SDL_HasRectIntersectionFloat(&Snake->Body[0], &Snake->Body[i])))
       {
-         if ((intersec = SDL_HasRectIntersectionFloat(&Snake->Body[0], &Snake->Body[i])))
-         {
-            break;  
-         }
+         break;  
       }
-   } while (false);
+   }
 
    return intersec; 
 }
@@ -147,21 +139,19 @@ RenderSnake(
 {
    int res = 0;
 
-   do
-   {
-      if (NULL == Snake) { res = 1; break; }
+   if (NULL == Snake) { res = -1; goto exit; }
 
-      res = SDL_SetRenderDrawColor(Renderer, 100, 100, 100, 0);
-      if (res) { break; }
+   res = SDL_SetRenderDrawColor(Renderer, 100, 100, 100, 0);
+   if (res) { goto exit; }
 
-      res = SDL_RenderFillRects(Renderer, &Snake->Body[1], Snake->Length - 1);
-      if (res) { break; }
+   res = SDL_RenderFillRects(Renderer, &Snake->Body[1], Snake->Length - 1);
+   if (res) { goto exit; }
 
-      res = SDL_SetRenderDrawColor(Renderer, 60, 60, 60, 0);
-      if (res) { break; }
+   res = SDL_SetRenderDrawColor(Renderer, 60, 60, 60, 0);
+   if (res) { goto exit; }
 
-      res = SDL_RenderFillRect(Renderer, &Snake->Body[0]);
-   } while (false);
-   
+   res = SDL_RenderFillRect(Renderer, &Snake->Body[0]);
+
+exit:
    return res;
 }
