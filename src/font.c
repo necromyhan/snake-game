@@ -71,7 +71,7 @@ PrintFontToRenderer(
 
    if (NULL == Font || NULL == Renderer)
    {
-      status = 1;
+      status = -1;
       goto exit;
    }
 
@@ -79,7 +79,7 @@ PrintFontToRenderer(
    if (NULL == surface)
    {
       SDL_Log("TTF_RenderText_Solid error = %s", SDL_GetError());
-      status = 1;
+      status = -1;
       goto exit;
    }
 
@@ -87,7 +87,7 @@ PrintFontToRenderer(
    if (NULL == texture)
    {
       SDL_Log("SDL_CreateTextureFromSurface error = %s", SDL_GetError());
-      status = 1;
+      status = -1;
       goto exit;
    }
 

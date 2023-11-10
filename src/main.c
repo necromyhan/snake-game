@@ -113,7 +113,7 @@ int main()
 {
    if (SdlInit())
    {
-      return 1;
+      goto exit;
    }
 
    // Game field init
@@ -138,7 +138,7 @@ int main()
    if (!renderer)
    {
       SDL_Log("CreateRenderer Error!");
-      return 1;
+      goto exit;
    }
 
    SNAKE* snake = CreateSnake(

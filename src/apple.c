@@ -18,7 +18,7 @@ UpdateApplePosition(
 {
    if (NULL == Apple || NULL == Snake)
    {
-      return;
+      goto exit;
    }
 
    int time  = SDL_GetTicks();
@@ -32,6 +32,7 @@ UpdateApplePosition(
 
    Apple->Body.h = CellSize / 2;
    Apple->Body.w = CellSize / 2;
+exit: ;
 }
 
 bool
@@ -49,15 +50,13 @@ RenderApple(
 {
    int res = 0;
 
-   do
-   {
-      if (NULL == Apple) { res = 1; break; }
+   if (NULL == Apple) { res = -1; goto exit; }
 
-      res = SDL_SetRenderDrawColor(Renderer, 200, 0, 0, 0);
-      if (res) { break; }
+   res = SDL_SetRenderDrawColor(Renderer, 200, 0, 0, 0);
+   if (res) { goto exit; }
 
-      res = SDL_RenderFillRect(Renderer, &Apple->Body);
-   } while (false);
+   res = SDL_RenderFillRect(Renderer, &Apple->Body);
    
+exit:
    return res;
 }
