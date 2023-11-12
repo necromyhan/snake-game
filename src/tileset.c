@@ -86,10 +86,10 @@ DestroyTileset(
 
 int
 RenderTile(
-   SDL_Renderer*  Renderer,
-   TILESET*       Tileset,
-   int            TileName,
-   SDL_FRect*     Dest)
+   SDL_Renderer*     Renderer,
+   TILESET*          Tileset,
+   int               TileName,
+   const SDL_FRect*  Dest)
 {
    int status = 0;
 
@@ -101,8 +101,8 @@ RenderTile(
 
 
    SDL_FRect tile;
-   tile.y = TileName * TileSize / Tileset->Width;
-   tile.x = TileName * TileSize % Tileset->Width;
+   tile.x = (TileName * TileSize) % Tileset->Width;
+   tile.y = ((TileName * TileSize) / Tileset->Width) * TileSize;
    tile.h = tile.w = TileSize;
 
    status = SDL_RenderTexture(

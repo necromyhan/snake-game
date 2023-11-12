@@ -135,22 +135,19 @@ IsSnakeIntersection(
 int
 RenderSnake(
    SDL_Renderer*  Renderer,
+   TILESET*       Tileset,
    const SNAKE*   Snake)
 {
    int res = 0;
 
    if (NULL == Snake) { res = -1; goto exit; }
 
-   res = SDL_SetRenderDrawColor(Renderer, 100, 100, 100, 0);
-   if (res) { goto exit; }
+   for (int i = Snake->Length; i > 0; --i)
+   {
+      res = RenderTile(Renderer, Tileset, SnakeBody1Tile, &Snake->Body[i]);   
+   }
 
-   res = SDL_RenderFillRects(Renderer, &Snake->Body[1], Snake->Length - 1);
-   if (res) { goto exit; }
-
-   res = SDL_SetRenderDrawColor(Renderer, 60, 60, 60, 0);
-   if (res) { goto exit; }
-
-   res = SDL_RenderFillRect(Renderer, &Snake->Body[0]);
+   res = RenderTile(Renderer, Tileset, SnakeHeadTile, &Snake->Body[0]);
 
 exit:
    return res;

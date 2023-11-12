@@ -4,6 +4,8 @@
 #include "SDL_rect.h"
 #include "SDL_render.h"
 
+#include "tileset.h"
+
 /// enum SNAKE_DIRECTION
 /// Snake movement directions
 typedef enum _SNAKE_DIRECTION
@@ -51,6 +53,7 @@ IsSnakeIntersection(
 int
 RenderSnake(
    SDL_Renderer*  Renderer,
+   TILESET*       Tileset,
    const SNAKE*   Snake);
 
 #endif //__SNAKE_GAME_SNAKE_H__

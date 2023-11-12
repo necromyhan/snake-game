@@ -4,6 +4,7 @@
 #include "SDL_rect.h"
 
 #include "snake.h"
+#include "tileset.h"
 
 typedef struct _APPLE
 {
@@ -33,6 +34,7 @@ IsApple(
 int
 RenderApple(
    SDL_Renderer*  Renderer,
+   TILESET*       Tileset,
    const APPLE*   Apple);
 
 #endif //__SNAKE_GAME_APPLE_H__

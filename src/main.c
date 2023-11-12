@@ -69,6 +69,7 @@ IsPeriodPassed(
 
 int Render(
    SDL_Renderer*     Renderer,
+   TILESET*          Tileset,
    const GAME_FIELD* Field,
    const SNAKE*      Snake,
    const APPLE*      Apple)
@@ -83,10 +84,22 @@ int Render(
                Field->WidthInCells * Field->CellSize,
                Field->HeightInCells * Field->CellSize };
 
+   res = SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 0);
+   if (res) { goto exit; }
+
+   SDL_FPoint points[] = { 
+         { Field->CellSize - 1, Field->CellSize - 1 },
+         { (Field->WidthInCells + 1) * Field->CellSize, Field->CellSize - 1 },
+         { (Field->WidthInCells + 1) * Field->CellSize, (Field->HeightInCells + 1) * Field->CellSize},
+         { Field->CellSize - 1, (Field->HeightInCells + 1) * Field->CellSize},
+         { Field->CellSize - 1, Field->CellSize - 1 } };
+   res = SDL_RenderLines(Renderer, points, 5);
+   if (res) { goto exit; }
+
    res = SDL_SetRenderViewport(Renderer, &fieldRect);
    if (res) { goto exit; }
 
-   res = SDL_SetRenderDrawColor(Renderer, 0, 100, 0, 0);
+   res = SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 0);
    if (res) { goto exit; }
 
    res = SDL_RenderFillRect(
@@ -97,10 +110,10 @@ int Render(
                   Field->HeightInCells * Field->CellSize});
    if (res) { goto exit; }
 
-   res = RenderApple(Renderer, Apple);
+   res = RenderApple(Renderer, Tileset, Apple);
    if (res) { goto exit; }
 
-   res = RenderSnake(Renderer, Snake);
+   res = RenderSnake(Renderer, Tileset, Snake);
    if (res) { goto exit; }
 
    res = SDL_RenderPresent(Renderer);
@@ -120,6 +133,7 @@ int main()
    GAME_FIELD* field = CreateGameField(40, 16, 12);
    if (NULL == field) { goto exit; }
    
+
    SDL_Window* window = SDL_CreateWindow(
                      "SNAKE",
                      field->CellSize * field->WidthInCells + 2 * field->CellSize,
@@ -138,6 +152,14 @@ int main()
    if (!renderer)
    {
       SDL_Log("CreateRenderer Error!");
+      goto exit;
+   }
+
+
+   TILESET* tileset = CreateTileset(renderer, "snake_tile_sheet.png");
+   if (NULL == tileset)
+   {
+      SDL_Log("CreateTileset Error!");
       goto exit;
    }
 
@@ -220,7 +242,7 @@ int main()
       if (IsPeriodPassed(200, lastFrameTime))
       {
          Update(snake, &apple, field);
-         Render(renderer, field, snake, &apple);
+         Render(renderer, tileset, field, snake, &apple);
          inputHandled = false;
          lastFrameTime = SDL_GetTicks();
          if (IsSnakeIntersection(snake))
@@ -235,6 +257,7 @@ int main()
 
 exit:
    DestroySnake(snake);
+   DestroyTileset(tileset);
    SDL_DestroyRenderer(renderer);
    SDL_DestroyWindow(window);
    SDL_Quit();

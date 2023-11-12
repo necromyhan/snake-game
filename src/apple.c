@@ -27,11 +27,11 @@ UpdateApplePosition(
    int xCell = rand() % WidthInCells;
    int yCell = rand() % HeightInCell;
 
-   Apple->Body.x = xCell * CellSize + CellSize / 4;
-   Apple->Body.y = yCell * CellSize + CellSize / 4;
+   Apple->Body.x = xCell * CellSize;
+   Apple->Body.y = yCell * CellSize;
 
-   Apple->Body.h = CellSize / 2;
-   Apple->Body.w = CellSize / 2;
+   Apple->Body.h = CellSize;
+   Apple->Body.w = CellSize;
 exit: ;
 }
 
@@ -46,17 +46,15 @@ IsApple(
 int
 RenderApple(
    SDL_Renderer*  Renderer,
+   TILESET*       Tileset,
    const APPLE*   Apple)
 {
    int res = 0;
 
    if (NULL == Apple) { res = -1; goto exit; }
 
-   res = SDL_SetRenderDrawColor(Renderer, 200, 0, 0, 0);
-   if (res) { goto exit; }
+   res = RenderTile(Renderer, Tileset, AppleTile, &Apple->Body);
 
-   res = SDL_RenderFillRect(Renderer, &Apple->Body);
-   
 exit:
    return res;
 }

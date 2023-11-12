@@ -8,21 +8,21 @@ typedef struct _TILESET TILESET;
 
 enum TILE_NAME
 {
-   SnakeBody1,
-   SnakeBody2,
-   SnakeBody3,
-   SnakeHead,
-   Wall1,
-   Wall2,
-   FullWall1,
-   FullWall2,
-   Grass,
-   Stone,
-   Apple,
-   Chicken
+   SnakeBody1Tile,
+   SnakeBody2Tile,
+   SnakeBody3Tile,
+   SnakeHeadTile,
+   Wall1Tile,
+   Wall2Tile,
+   FullWall1Tile,
+   FullWall2Tile,
+   GrassTile,
+   StoneTile,
+   AppleTile,
+   ChickenTile
 };
 
-TILESET *
+TILESET*
 CreateTileset(
    SDL_Renderer*  Renderer,
    const char*    Path);
@@ -32,9 +32,9 @@ void DestroyTileset(
 
 int
 RenderTile(
-   SDL_Renderer*  Renderer,
-   TILESET*       Tileset,
-   int            TileName,
-   SDL_FRect*     Dest);
+   SDL_Renderer*     Renderer,
+   TILESET*          Tileset,
+   int               TileName,
+   const SDL_FRect*  Dest);
 
 #endif //__SNAKE_TILES_H__
