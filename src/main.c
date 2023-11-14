@@ -13,8 +13,9 @@
 #include "snake.h"
 #include "apple.h"
 #include "font.h"
-#include "field.h"
+#include "game.h"
 
+bool gInputHandled = false;
 
 int SdlInit()
 {
@@ -37,19 +38,31 @@ int SdlInit()
 
 
 void
-Update(
-   SNAKE*      Snake,
-   APPLE*      Apple,
-   GAME_FIELD* Field)
+Update(GAME* Game)
 {
-   if (IsApple(Apple, Snake))
+   if (NULL == Game)
    {
-      float oldX = Snake->Body[0].x;
-      float oldy = Snake->Body[0].y;
-      GrowSnake(Snake);
-      UpdateApplePosition(Apple, Snake, Field->CellSize, Field->WidthInCells, Field->HeightInCells);
+      goto exit;
    }
-   MoveSnake(Snake, Field->WidthInCells * Field->CellSize, Field->HeightInCells * Field->CellSize);
+
+   if (IsApple(&Game->Apple, Game->Snake))
+   {
+      float oldX = Game->Snake->Body[0].x;
+      float oldy = Game->Snake->Body[0].y;
+      GrowSnake(Game->Snake);
+      UpdateApplePosition(
+               &Game->Apple,
+               Game->Snake,
+               Game->Field.CellSize,
+               Game->Field.WidthInCells,
+               Game->Field.HeightInCells);
+   }
+
+   MoveSnake(Game->Snake,
+               Game->Field.WidthInCells * Game->Field.CellSize,
+               Game->Field.HeightInCells * Game->Field.CellSize);
+
+exit: ;
 }
 
 bool
@@ -67,60 +80,126 @@ IsPeriodPassed(
 }
 
 
-int Render(
-   SDL_Renderer*     Renderer,
-   TILESET*          Tileset,
-   const GAME_FIELD* Field,
-   const SNAKE*      Snake,
-   const APPLE*      Apple)
+int Render(GAME* Game)
 {
-   int res = 0;
+   int status = 0;
+
+   if (NULL == Game)
+   {
+      status = -1;
+      goto exit;
+   }
 
    // SDL_SetRenderCliхаpRect(Renderer, &(SDL_Rect){ .x = 0, .y = 0 , .w = 400, .h = 400});
    // SDL_RenderTexture();
    SDL_Rect fieldRect = {
-               Field->CellSize,
-               Field->CellSize,
-               Field->WidthInCells * Field->CellSize,
-               Field->HeightInCells * Field->CellSize };
+               Game->Field.CellSize,
+               Game->Field.CellSize,
+               Game->Field.WidthInCells * Game->Field.CellSize,
+               Game->Field.HeightInCells * Game->Field.CellSize };
 
-   res = SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 0);
-   if (res) { goto exit; }
+   status = SDL_SetRenderDrawColor(Game->Renderer, 255, 255, 255, 0);
+   if (status) { goto exit; }
 
    SDL_FPoint points[] = { 
-         { Field->CellSize - 1, Field->CellSize - 1 },
-         { (Field->WidthInCells + 1) * Field->CellSize, Field->CellSize - 1 },
-         { (Field->WidthInCells + 1) * Field->CellSize, (Field->HeightInCells + 1) * Field->CellSize},
-         { Field->CellSize - 1, (Field->HeightInCells + 1) * Field->CellSize},
-         { Field->CellSize - 1, Field->CellSize - 1 } };
-   res = SDL_RenderLines(Renderer, points, 5);
-   if (res) { goto exit; }
+         { Game->Field.CellSize - 1, Game->Field.CellSize - 1 },
+         { (Game->Field.WidthInCells + 1) * Game->Field.CellSize, Game->Field.CellSize - 1 },
+         { (Game->Field.WidthInCells + 1) * Game->Field.CellSize, (Game->Field.HeightInCells + 1) * Game->Field.CellSize},
+         { Game->Field.CellSize - 1, (Game->Field.HeightInCells + 1) * Game->Field.CellSize},
+         { Game->Field.CellSize - 1, Game->Field.CellSize - 1 } };
+   status = SDL_RenderLines(Game->Renderer, points, 5);
+   if (status) { goto exit; }
 
-   res = SDL_SetRenderViewport(Renderer, &fieldRect);
-   if (res) { goto exit; }
+   status = SDL_SetRenderViewport(Game->Renderer, &fieldRect);
+   if (status) { goto exit; }
 
-   res = SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 0);
-   if (res) { goto exit; }
+   status = SDL_SetRenderDrawColor(Game->Renderer, 0, 0, 0, 0);
+   if (status) { goto exit; }
 
-   res = SDL_RenderFillRect(
-               Renderer,
+   status = SDL_RenderFillRect(
+               Game->Renderer,
                &(SDL_FRect){ 
                   0, 0, 
-                  Field->WidthInCells * Field->CellSize,
-                  Field->HeightInCells * Field->CellSize});
-   if (res) { goto exit; }
+                  Game->Field.WidthInCells * Game->Field.CellSize,
+                  Game->Field.HeightInCells * Game->Field.CellSize});
+   if (status) { goto exit; }
 
-   res = RenderApple(Renderer, Tileset, Apple);
-   if (res) { goto exit; }
+   status = RenderApple(Game->Renderer, Game->Tileset, &Game->Apple);
+   if (status) { goto exit; }
 
-   res = RenderSnake(Renderer, Tileset, Snake);
-   if (res) { goto exit; }
+   status = RenderSnake(Game->Renderer, Game->Tileset, Game->Snake);
+   if (status) { goto exit; }
 
-   res = SDL_RenderPresent(Renderer);
+   status = SDL_RenderPresent(Game->Renderer);
    
 exit:
-   return res;
+   return status;
 }
+
+void
+HandleGameEvent(
+   GAME*             Game,
+   const SDL_Event*  Event)
+{
+   if (NULL == Event || NULL == Game)
+   {
+      goto exit;
+   }
+
+   if (Event->type == SDL_EVENT_KEY_DOWN)
+   {
+      if (!gInputHandled)
+      {
+         switch (Event->key.keysym.sym)
+         {
+            case SDLK_UP:
+            {
+               if (Game->Snake->Direction != SnakeDirectionUp
+                   && Game->Snake->Direction != SnakeDirectionDown)
+               {
+                  Game->Snake->Direction = SnakeDirectionUp;
+                  gInputHandled = true;
+               }
+            }
+            break;
+            case SDLK_DOWN:
+            {
+               if (Game->Snake->Direction != SnakeDirectionUp
+                   && Game->Snake->Direction != SnakeDirectionDown)
+               {
+                  Game->Snake->Direction = SnakeDirectionDown;
+                  gInputHandled = true;
+               }
+            }
+            break;
+            case SDLK_RIGHT:
+            {
+               if (Game->Snake->Direction != SnakeDirectionLeft
+                   && Game->Snake->Direction != SnakeDirectionRight)
+               {
+                  Game->Snake->Direction = SnakeDirectionRight;
+                  gInputHandled = true;
+               }
+            }
+            break;
+            case SDLK_LEFT:
+            {
+               if (Game->Snake->Direction != SnakeDirectionRight
+                     && Game->Snake->Direction != SnakeDirectionLeft)
+               {
+                  Game->Snake->Direction = SnakeDirectionLeft;
+                  gInputHandled = true;
+               }
+            }
+            break;
+         }
+      }
+      gInputHandled = true;
+   }
+
+   exit: ;
+}
+
 
 int main()
 {
@@ -129,53 +208,13 @@ int main()
       goto exit;
    }
 
-   // Game field init
-   GAME_FIELD* field = CreateGameField(40, 16, 12);
-   if (NULL == field) { goto exit; }
-   
-
-   SDL_Window* window = SDL_CreateWindow(
-                     "SNAKE",
-                     field->CellSize * field->WidthInCells + 2 * field->CellSize,
-                     field->CellSize * field->HeightInCells + 4 * field->CellSize,
-                     0);
-   if (!window)
+   GAME game;
+   if (InitGame(&game))
    {
-      SDL_Log("CreateWindow Error!");
       goto exit;
    }
-
-   //  SDL render faster than window creation by OS
-   SDL_Delay(50);
-
-   SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL, SDL_RENDERER_PRESENTVSYNC);
-   if (!renderer)
-   {
-      SDL_Log("CreateRenderer Error!");
-      goto exit;
-   }
-
-
-   TILESET* tileset = CreateTileset(renderer, "snake_tile_sheet.png");
-   if (NULL == tileset)
-   {
-      SDL_Log("CreateTileset Error!");
-      goto exit;
-   }
-
-   SNAKE* snake = CreateSnake(
-                     field->CellSize,
-                     field->WidthInCells * field->HeightInCells,
-                     5,
-                     5);
-   if (NULL == snake) { return 1; }
-
-
-   APPLE apple;
-   InitApple(&apple, snake, field->CellSize, field->WidthInCells, field->HeightInCells);
 
    bool isRunning = true;
-   bool inputHandled = false;
    int lastFrameTime = 0;
    SDL_Event event;
    while (isRunning)
@@ -186,66 +225,17 @@ int main()
          {
             isRunning = false;
          }
-         else if (event.type == SDL_EVENT_KEY_DOWN)
-         {
-            if (!inputHandled)
-            {
-               switch (event.key.keysym.sym)
-               {
-                  case SDLK_UP:
-                  {
-                     if (snake->Direction != SnakeDirectionUp
-                        && snake->Direction != SnakeDirectionDown)
-                     {
-                        snake->Direction = SnakeDirectionUp;
-                        inputHandled = true;
-                     }
-                  }
-                  break;
-                  case SDLK_DOWN:
-                  {
-                     if (snake->Direction != SnakeDirectionUp
-                        && snake->Direction != SnakeDirectionDown)
-                     {
-                        snake->Direction = SnakeDirectionDown;
-                        inputHandled = true;
-                     }
-                  }
-                  break;
-                  case SDLK_RIGHT:
-                  {
-                     if (snake->Direction != SnakeDirectionLeft
-                        && snake->Direction != SnakeDirectionRight)
-                     {
-                        snake->Direction = SnakeDirectionRight;
-                        inputHandled = true;
-                     }
-                  }
-                  break;
-                  case SDLK_LEFT:
-                  {
-                     if (snake->Direction != SnakeDirectionRight
-                        && snake->Direction != SnakeDirectionLeft)
-                     {
-                        snake->Direction = SnakeDirectionLeft;
-                        inputHandled = true;
-                     }
-                  }
-                  break;
-               }
-            }
-            inputHandled = true;
-         }
       }
+      HandleGameEvent(&game, &event);
 
       // WaitTime(300, lastFrameTime);
       if (IsPeriodPassed(200, lastFrameTime))
       {
-         Update(snake, &apple, field);
-         Render(renderer, tileset, field, snake, &apple);
-         inputHandled = false;
+         Update(&game);
+         Render(&game);
+         gInputHandled = false;
          lastFrameTime = SDL_GetTicks();
-         if (IsSnakeIntersection(snake))
+         if (IsSnakeIntersection(game.Snake))
          {
             isRunning = false;
             SDL_Log("GAME OVER!");
@@ -254,12 +244,7 @@ int main()
 
    }
 
-
 exit:
-   DestroySnake(snake);
-   DestroyTileset(tileset);
-   SDL_DestroyRenderer(renderer);
-   SDL_DestroyWindow(window);
    SDL_Quit();
 
    return 0;

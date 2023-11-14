@@ -98,6 +98,8 @@ PrintFontToRenderer(
       goto exit;
    }
 
+   // SDL_RenderTextureRotated()
+
    status = SDL_RenderTexture(
                      Renderer,
                      texture,
