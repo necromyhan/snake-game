@@ -16,6 +16,13 @@ add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
 set_target_properties(${PROJECT_NAME}
 PROPERTIES
-RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/output/bin")
+RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/output")
 
 target_link_libraries(${PROJECT_NAME} PUBLIC SDL3_ttf::SDL3_ttf SDL3_image::SDL3_image SDL3::SDL3)
+
+SET(TILE_SHEET_PATH ${CMAKE_SOURCE_DIR}/snake_tile_sheet.png)
+
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy "${TILE_SHEET_PATH}" "${CMAKE_SOURCE_DIR}/output"
+    COMMENT "Copying tile sheet to output directory")

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(test_game)
+project(snake_game)
 
 set(CMAKE_C_STANDART C99)
 
