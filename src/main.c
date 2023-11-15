@@ -245,6 +245,7 @@ int main()
    }
 
 exit:
+   ExitGame(&game);
    SDL_Quit();
 
    return 0;

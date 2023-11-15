@@ -42,4 +42,25 @@ InitGame(GAME* Game);
 void
 ExitGame(GAME* Game);
 
+typedef
+int
+(*SCENE_HANDLE_EVENT)(
+   GAME*       Game,
+   SDL_Event*  Event);
+
+typedef
+int
+(*SCENE_UPDATE)(GAME* Game);
+
+typedef
+int
+(*SCENE_RENDER)(GAME* Game);
+
+typedef struct _SCENE
+{
+   SCENE_HANDLE_EVENT   HandleEvent;
+   SCENE_UPDATE         Update;
+   SCENE_RENDER         Render;
+} SCENE;
+
 #endif //__SNAKE_GAME_GLOBAL_H__
