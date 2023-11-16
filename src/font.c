@@ -8,7 +8,6 @@ typedef struct _FONT
 {
    TTF_Font*   TtfFont;
    int         Size;
-   SDL_Color   Color;
 } FONT;
 
 FONT*
@@ -41,7 +40,6 @@ CreateFont(
       goto exit;
    }
 
-   font->Color = Color;
    font->Size = Size;
    
 exit:
@@ -64,6 +62,7 @@ PrintFontToRenderer(
    const FONT*    Font,
    SDL_Renderer*  Renderer,
    const char*    Text,
+   SDL_Color      Color,
    SDL_Point      Position)
 {
    int status = 0;
@@ -74,7 +73,7 @@ PrintFontToRenderer(
       goto exit;
    }
 
-   SDL_Surface* surface = TTF_RenderText_Solid(Font->TtfFont, Text, Font->Color);
+   SDL_Surface* surface = TTF_RenderText_Solid(Font->TtfFont, Text, Color);
    if (NULL == surface)
    {
       SDL_Log("TTF_RenderText_Solid error = %s", SDL_GetError());

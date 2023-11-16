@@ -16,10 +16,11 @@ bool gInputHandled = false;
 
 static SCENE*  gScenes[] = 
 {  
+   &gMenuScene,
    &gGameplayScene,
    &gGameOverScene
 };
-static GAME_STATE gCurrentScene = StateGameplay;
+GAME_STATE gCurrentScene = StateMenu;
 
 static
 int

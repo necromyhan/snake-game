@@ -19,6 +19,7 @@ PrintFontToRenderer(
    const FONT*    Font,
    SDL_Renderer*  Renderer,
    const char*    Text,
+   SDL_Color      Color,
    SDL_Point      Position);
 
 #endif //__SNAKE_GAME_FONT_H__
