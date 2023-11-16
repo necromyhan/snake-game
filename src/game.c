@@ -18,6 +18,13 @@ InitGame(GAME* Game)
    Game->Field.WidthInCells   = 12;
    Game->Field.HeightInCells  = 9;
 
+   Game->Menu = CreateMenu();
+   if (NULL == Game->Menu)
+   {
+      status = -1;
+      goto error;
+   }
+
    Game->Snake = CreateSnake(
                   Game->Field.CellSize,
                   Game->Field.WidthInCells * Game->Field.HeightInCells,
@@ -68,6 +75,11 @@ InitGame(GAME* Game)
       goto error;
    }
 
+   Game->Font = CreateFont(
+                  "kongtext.regular.ttf",
+                  Game->Field.CellSize,
+                  (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0 });
+
    goto exit;
 
 error:
@@ -86,6 +98,8 @@ ExitGame(GAME* Game)
       // Game->Font = NULL;
       Game->Apple = (APPLE){ 0 };
       Game->Field = (GAME_FIELD){ 0 };
+      DestroyMenu(Game->Menu);
+      Game->Menu = NULL;
       DestroySnake(Game->Snake);
       Game->Snake = NULL;
       DestroyTileset(Game->Tileset);
@@ -255,32 +269,7 @@ SCENE gGameplayScene =
    .Update        = GameplayUpdate    
 };
 
-int
-MenuHandleEvents(
-   GAME*             Game,
-   const SDL_Event*  Event)
-{
-   return -1;
-}
 
-int
-MenuUpdate(GAME* Game)
-{
-   return -1;
-}
-
-int
-MenuRender(GAME* Game)
-{
-   return -1;
-}
-
-SCENE gMenuScene = 
-{
-   .HandleEvents  = MenuHandleEvents,
-   .Render        = MenuRender,
-   .Update        = MenuUpdate    
-};
 
 int
 GameOverHandleEvents(

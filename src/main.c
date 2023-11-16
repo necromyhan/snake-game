@@ -16,7 +16,6 @@ bool gInputHandled = false;
 
 static SCENE*  gScenes[] = 
 {  
-   &gMenuScene,
    &gGameplayScene,
    &gGameOverScene
 };

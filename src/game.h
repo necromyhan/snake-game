@@ -5,6 +5,7 @@
 
 #include "snake.h"
 #include "apple.h"
+#include "menu.h"
 #include "tileset.h"
 #include "font.h"
 
@@ -31,6 +32,7 @@ typedef struct _GAME
    SNAKE*         Snake;
    TILESET*       Tileset;
    FONT*          Font;
+   MENU*          Menu;
    GAME_FIELD     Field;
    APPLE          Apple;
 } GAME;

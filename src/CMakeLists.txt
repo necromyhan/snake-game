@@ -3,6 +3,7 @@ set(HEADER_FILES ${CMAKE_SOURCE_DIR}/src/snake.h
                  ${CMAKE_SOURCE_DIR}/src/apple.h
                  ${CMAKE_SOURCE_DIR}/src/font.h
                  ${CMAKE_SOURCE_DIR}/src/tileset.h
+                 ${CMAKE_SOURCE_DIR}/src/menu.h
                  ${CMAKE_SOURCE_DIR}/src/game.h)
 
 set(SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/main.c 
@@ -10,6 +11,7 @@ set(SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/main.c
                  ${CMAKE_SOURCE_DIR}/src/apple.c
                  ${CMAKE_SOURCE_DIR}/src/font.c
                  ${CMAKE_SOURCE_DIR}/src/game.c
+                 ${CMAKE_SOURCE_DIR}/src/menu.c
                  ${CMAKE_SOURCE_DIR}/src/tileset.c)
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
