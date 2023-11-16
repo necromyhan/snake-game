@@ -8,12 +8,12 @@
 #include "tileset.h"
 #include "font.h"
 
-enum GAME_STATE 
+typedef enum _GAME_STATE 
 {
    StateMenu,
    StateGameplay,
    StateGameOver
-};
+} GAME_STATE;
 
 typedef struct _GAME_FIELD
 {
@@ -33,7 +33,6 @@ typedef struct _GAME
    FONT*          Font;
    GAME_FIELD     Field;
    APPLE          Apple;
-   int            State;
 } GAME;
 
 int
@@ -45,8 +44,8 @@ ExitGame(GAME* Game);
 typedef
 int
 (*SCENE_HANDLE_EVENT)(
-   GAME*       Game,
-   SDL_Event*  Event);
+   GAME*             Game,
+   const SDL_Event*  Event);
 
 typedef
 int
@@ -58,9 +57,12 @@ int
 
 typedef struct _SCENE
 {
-   SCENE_HANDLE_EVENT   HandleEvent;
+   SCENE_HANDLE_EVENT   HandleEvents;
    SCENE_UPDATE         Update;
    SCENE_RENDER         Render;
 } SCENE;
 
+extern SCENE gGameplayScene;
+extern SCENE gMenuScene;
+extern SCENE gGameOverScene;
 #endif //__SNAKE_GAME_GLOBAL_H__
