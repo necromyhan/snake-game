@@ -3,12 +3,19 @@
 
 #include <SDL.h>
 
-enum MENU_ITEM_TYPE
+enum START_MENU_ITEM_TYPE
 {
-   MenuItemStart,
-   MenuItemOptions,
-   MenuItemExit,
-   MenuItemMax
+   StartMenuStart,
+   StartMenuOptions,
+   StartMenuExit,
+   StartMenuMax
+};
+
+enum GAME_OVER_MENU_ITEM_TYPE
+{
+   GameOverMenuRetry,
+   GameOverMenuExit,
+   GameOverMenuMax
 };
 
 enum MENU_ITEM_STATE
@@ -27,12 +34,15 @@ typedef struct _MENU_ITEM
 typedef struct _MENU
 {
    int         Count;
-   int         CurrentType;
+   int         ActiveType;
    MENU_ITEM   Items[];   
 } MENU;
 
+
 MENU*
-CreateMenu(void);
+CreateMenu(
+   int            Count,
+   const char**   Strings);
 
 void
 DestroyMenu(MENU* Menu);

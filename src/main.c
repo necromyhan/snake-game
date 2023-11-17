@@ -95,7 +95,7 @@ int main()
          lastFrameTime = SDL_GetTicks();
          if (IsSnakeIntersection(game.Snake))
          {
-            isRunning = false;
+            gCurrentScene = StateGameOver;
             SDL_Log("GAME OVER!");
          }
       }

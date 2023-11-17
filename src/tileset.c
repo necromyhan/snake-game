@@ -58,6 +58,7 @@ CreateTileset(
       goto error;
    }
 
+
    tileset->Texture = tsTexture;
    tileset->Height = h;
    tileset->Width = w;

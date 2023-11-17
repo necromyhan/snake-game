@@ -3,6 +3,19 @@
 
 #include "game.h"
 
+static const char* gStartMenuString[] =
+{
+   "Start",
+   "Options",
+   "Exit"
+};
+
+static const char* gGameOverMenuString[] =
+{
+   "Retry",
+   "Menu"
+};
+
 int
 InitGame(GAME* Game)
 {
@@ -18,8 +31,17 @@ InitGame(GAME* Game)
    Game->Field.WidthInCells   = 12;
    Game->Field.HeightInCells  = 9;
 
-   Game->Menu = CreateMenu();
-   if (NULL == Game->Menu)
+   // Start menu
+   Game->StartMenu = CreateMenu(3, gStartMenuString);
+   if (NULL == Game->StartMenu)
+   {
+      status = -1;
+      goto error;
+   }
+
+   // Game over menu
+   Game->GameOverMenu = CreateMenu(2, gGameOverMenuString);
+   if (NULL == Game->GameOverMenu)
    {
       status = -1;
       goto error;
@@ -98,8 +120,10 @@ ExitGame(GAME* Game)
       // Game->Font = NULL;
       Game->Apple = (APPLE){ 0 };
       Game->Field = (GAME_FIELD){ 0 };
-      DestroyMenu(Game->Menu);
-      Game->Menu = NULL;
+      DestroyMenu(Game->StartMenu);
+      Game->StartMenu = NULL;
+      DestroyMenu(Game->GameOverMenu);
+      Game->StartMenu = NULL;
       DestroySnake(Game->Snake);
       Game->Snake = NULL;
       DestroyTileset(Game->Tileset);
@@ -260,40 +284,9 @@ exit:
    return status;
 }
 
-
-
 SCENE gGameplayScene = 
 {
    .HandleEvents  = GameplayHandleEvents,
    .Render        = GameplayRender,
    .Update        = GameplayUpdate    
-};
-
-
-
-int
-GameOverHandleEvents(
-   GAME*             Game,
-   const SDL_Event*  Event)
-{
-   return -1;
-}
-
-int
-GameOverUpdate(GAME* Game)
-{
-   return -1;
-}
-
-int
-GameOverRender(GAME* Game)
-{
-   return -1;
-}
-
-SCENE gGameOverScene = 
-{
-   .HandleEvents  = GameOverHandleEvents,
-   .Render        = GameOverRender,
-   .Update        = GameOverUpdate    
 };

@@ -32,7 +32,8 @@ typedef struct _GAME
    SNAKE*         Snake;
    TILESET*       Tileset;
    FONT*          Font;
-   MENU*          Menu;
+   MENU*          StartMenu;
+   MENU*          GameOverMenu;
    GAME_FIELD     Field;
    APPLE          Apple;
 } GAME;

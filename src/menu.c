@@ -4,34 +4,30 @@
 #include "game.h"
 #include "menu.h"
 
-static char* gMenuString[] =
-{
-   "Start",
-   "Options",
-   "Exit"
-};
 
 MENU*
-CreateMenu(void)
+CreateMenu(
+   int            Count,
+   const char**   Strings)
 {
    MENU* menu = NULL;
 
-   menu = SDL_malloc(sizeof(MENU) + sizeof(MENU_ITEM) * MenuItemMax);
+   menu = SDL_malloc(sizeof(MENU) + sizeof(MENU_ITEM) * Count);
    if (NULL == menu)
    {
       goto exit;
    }
 
-   menu->Count = MenuItemMax;
-   for (int i = 0; i < MenuItemMax; ++i)
+   menu->Count = Count;
+   for (int i = 0; i < Count; ++i)
    {
       menu->Items[i].State = ItemStateIdle;
-      menu->Items[i].Text = gMenuString[i];
+      menu->Items[i].Text = Strings[i];
       menu->Items[i].Type = i;
    }
 
    menu->Items[0].State = ItemStateHover;
-   menu->CurrentType = 0;
+   menu->ActiveType = 0;
 
 exit:
    return menu;
@@ -49,7 +45,7 @@ DestroyMenu(MENU* Menu)
 extern GAME_STATE gCurrentScene;
 
 int
-MenuHandleEvents(
+StartMenuHandleEvents(
    GAME*             Game,
    const SDL_Event*  Event)
 {
@@ -66,26 +62,25 @@ MenuHandleEvents(
       {
          case SDLK_UP:
          {
-            if (Game->Menu->CurrentType > MenuItemStart)
+            if (Game->StartMenu->ActiveType > StartMenuStart)
             {
-               Game->Menu->Items[Game->Menu->CurrentType--].State = ItemStateIdle;
-               Game->Menu->Items[Game->Menu->CurrentType].State = ItemStateHover;
+               Game->StartMenu->Items[Game->StartMenu->ActiveType--].State = ItemStateIdle;
+               Game->StartMenu->Items[Game->StartMenu->ActiveType].State = ItemStateHover;
             }
          }
          break;
          case SDLK_DOWN:
          {
-            if (Game->Menu->CurrentType < MenuItemMax - 1)
+            if (Game->StartMenu->ActiveType < StartMenuMax - 1)
             {
-               Game->Menu->Items[Game->Menu->CurrentType++].State = ItemStateIdle;
-               Game->Menu->Items[Game->Menu->CurrentType].State = ItemStateHover;
+               Game->StartMenu->Items[Game->StartMenu->ActiveType++].State = ItemStateIdle;
+               Game->StartMenu->Items[Game->StartMenu->ActiveType].State = ItemStateHover;
             }
          }
          break;
          case SDLK_RETURN:
          {
-            SDL_Log("Enter");
-            if (Game->Menu->CurrentType == MenuItemStart)
+            if (Game->StartMenu->ActiveType == StartMenuStart)
             {
                gCurrentScene = StateGameplay;
             }
@@ -98,13 +93,13 @@ MenuHandleEvents(
 }
 
 int
-MenuUpdate(GAME* Game)
+StartMenuUpdate(GAME* Game)
 {
    return 0;
 }
 
 int
-MenuRender(GAME* Game)
+StartMenuRender(GAME* Game)
 {
    int status = 0;
 
@@ -114,8 +109,6 @@ MenuRender(GAME* Game)
       goto exit;
    }
 
-   
-
    status = SDL_SetRenderDrawColor(Game->Renderer, 0, 0, 0, 0);
    if (status) { goto exit; }
    
@@ -124,13 +117,15 @@ MenuRender(GAME* Game)
 
    int posX = Game->Field.CellSize;
    int posY = Game->Field.CellSize;
-   for (int i = 0; i < Game->Menu->Count; ++i)
+   for (int i = 0; i < Game->StartMenu->Count; ++i)
    {
       status = PrintFontToRenderer(
             Game->Font,
             Game->Renderer,
-            Game->Menu->Items[i].Text,
-            (Game->Menu->Items[i].State) ? (SDL_Color){.b = 200, .g = 0, .r = 0, .a = 0} : (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
+            Game->StartMenu->Items[i].Text,
+            (Game->StartMenu->Items[i].State) ? 
+            (SDL_Color){.b = 200, .g = 0, .r = 0, .a = 0} : 
+            (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
             (SDL_Point){.x = posX, .y = posY});
       if (status)
       {
@@ -149,9 +144,117 @@ exit:
 
 SCENE gMenuScene = 
 {
-   .HandleEvents  = MenuHandleEvents,
-   .Render        = MenuRender,
-   .Update        = MenuUpdate    
+   .HandleEvents  = StartMenuHandleEvents,
+   .Render        = StartMenuRender,
+   .Update        = StartMenuUpdate    
 };
 
+int
+GameOverMenuHandleEvents(
+   GAME*             Game,
+   const SDL_Event*  Event)
+{
+   int status = 0;
+   if (NULL == Event || NULL == Game)
+   {
+      status = -1;
+      goto exit;
+   }
 
+   if (Event->type == SDL_EVENT_KEY_DOWN)
+   {
+      switch (Event->key.keysym.sym)
+      {
+         case SDLK_UP:
+         {
+            SDL_Log("UP!");
+            if (Game->GameOverMenu->ActiveType > GameOverMenuRetry)
+            {
+               Game->GameOverMenu->Items[Game->GameOverMenu->ActiveType--].State = ItemStateIdle;
+               Game->GameOverMenu->Items[Game->GameOverMenu->ActiveType].State = ItemStateHover;
+            }
+         }
+         break;
+         case SDLK_DOWN:
+         {
+            if (Game->GameOverMenu->ActiveType < GameOverMenuMax - 1)
+            {
+               Game->GameOverMenu->Items[Game->GameOverMenu->ActiveType++].State = ItemStateIdle;
+               Game->GameOverMenu->Items[Game->GameOverMenu->ActiveType].State = ItemStateHover;
+            }
+         }
+         break;
+         case SDLK_RETURN:
+         {
+            if (Game->GameOverMenu->ActiveType == GameOverMenuExit)
+            {
+               gCurrentScene = StateMenu;
+            }
+            else if (Game->GameOverMenu->ActiveType == GameOverMenuRetry)
+            {
+               gCurrentScene = StateGameplay;
+            }
+         }
+      }
+   }   
+
+exit:
+   return status;
+}
+
+int
+GameOverMenuUpdate(GAME* Game)
+{
+   return 0;
+}
+
+int
+GameOverMenuRender(GAME* Game)
+{
+   int status = 0;
+
+   if (NULL == Game)
+   {
+      status = -1;
+      goto exit;
+   }
+
+   status = SDL_SetRenderDrawColor(Game->Renderer, 0, 0, 0, 0);
+   if (status) { goto exit; }
+   
+   status = SDL_RenderFillRect(Game->Renderer, NULL);
+   if (status) { goto exit; }
+
+   int posX = Game->Field.CellSize;
+   int posY = Game->Field.CellSize;
+   for (int i = 0; i < Game->GameOverMenu->Count; ++i)
+   {
+      status = PrintFontToRenderer(
+            Game->Font,
+            Game->Renderer,
+            Game->GameOverMenu->Items[i].Text,
+            (Game->GameOverMenu->Items[i].State) ? 
+            (SDL_Color){.b = 200, .g = 0, .r = 0, .a = 0} : 
+            (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
+            (SDL_Point){.x = posX, .y = posY});
+      if (status)
+      {
+         goto exit;
+      }
+
+      // TODO: get screen width from window
+      posY += Game->Field.CellSize;
+   }
+   
+   status = SDL_RenderPresent(Game->Renderer);
+
+exit:
+   return status;
+}
+
+SCENE gGameOverScene = 
+{
+   .HandleEvents  = GameOverMenuHandleEvents,
+   .Render        = GameOverMenuRender,
+   .Update        = GameOverMenuUpdate
+};
