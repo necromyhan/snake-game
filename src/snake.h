@@ -46,6 +46,10 @@ void
 GrowSnake(
    SNAKE*   Snake);
 
+void
+ReinitSnake(
+   SNAKE*   Snake);
+
 bool
 IsSnakeIntersection(
    const SNAKE*   Snake);

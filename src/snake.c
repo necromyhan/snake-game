@@ -115,6 +115,20 @@ GrowSnake(
    Snake->Length += 1;
 }
 
+void
+ReinitSnake(
+   SNAKE*   Snake)
+{
+   if (NULL == Snake)
+   {
+      goto exit;
+   }
+
+   Snake->Length = 2;
+
+   exit: ;
+}
+
 bool
 IsSnakeIntersection(
    const SNAKE*   Snake)
@@ -129,7 +143,7 @@ IsSnakeIntersection(
       }
    }
 
-   return intersec; 
+   return intersec;
 }
 
 int
@@ -142,8 +156,8 @@ RenderSnake(
 
    if (NULL == Snake) { res = -1; goto exit; }
 
-   for (int i = Snake->Length; i > 0; --i)
-   {
+   for (int i = Snake->Length - 1; i > 0; --i)
+   {  
       res = RenderTile(Renderer, Tileset, SnakeBody1Tile, &Snake->Body[i]);   
    }
 
