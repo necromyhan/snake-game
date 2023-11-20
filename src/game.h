@@ -25,6 +25,12 @@ typedef struct _GAME_FIELD
    int HeightInCells;
 } GAME_FIELD;
 
+typedef struct _RESOLUTION
+{
+   int Width;
+   int Height;
+} RESOLUTION;
+
 typedef struct _GAME
 {
    SDL_Renderer*  Renderer;
@@ -38,8 +44,11 @@ typedef struct _GAME
    APPLE          Apple;
 } GAME;
 
+
 int
-InitGame(GAME* Game);
+InitGame(
+   GAME*             Game,
+   const RESOLUTION* Resolution);
 
 void
 ExitGame(GAME* Game);

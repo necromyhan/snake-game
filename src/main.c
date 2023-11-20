@@ -66,7 +66,7 @@ int main()
    }
 
    GAME game;
-   if (InitGame(&game))
+   if (InitGame(&game, &(RESOLUTION){ 800, 600 }))
    {
       goto exit;
    }

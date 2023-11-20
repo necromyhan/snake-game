@@ -167,7 +167,6 @@ GameOverMenuHandleEvents(
       {
          case SDLK_UP:
          {
-            SDL_Log("UP!");
             if (Game->GameOverMenu->ActiveType > GameOverMenuRetry)
             {
                Game->GameOverMenu->Items[Game->GameOverMenu->ActiveType--].State = ItemStateIdle;

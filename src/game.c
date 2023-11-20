@@ -3,6 +3,12 @@
 
 #include "game.h"
 
+enum {
+   MinumumCellSize = 16,
+   FieldWidthInCells = 14,
+   FieldHeightInCells = 10
+};
+
 static const char* gStartMenuString[] =
 {
    "Start",
@@ -17,7 +23,9 @@ static const char* gGameOverMenuString[] =
 };
 
 int
-InitGame(GAME* Game)
+InitGame(
+   GAME*             Game,
+   const RESOLUTION* Resolution)
 {
    int status = 0;
 
@@ -27,9 +35,14 @@ InitGame(GAME* Game)
       goto exit;
    }
 
-   Game->Field.CellSize       = 64;
-   Game->Field.WidthInCells   = 12;
-   Game->Field.HeightInCells  = 9;
+   int temp = Resolution->Width / (FieldWidthInCells + 1);
+   temp /= MinumumCellSize;
+   Game->Field.CellSize = temp * MinumumCellSize; 
+
+   SDL_Log("CellSize = %d", Game->Field.CellSize);
+
+   Game->Field.WidthInCells   = FieldWidthInCells;
+   Game->Field.HeightInCells  = FieldHeightInCells;
 
    // Start menu
    Game->StartMenu = CreateMenu(3, gStartMenuString);
@@ -238,24 +251,17 @@ GameplayRender(GAME*  Game)
       goto exit;
    }
 
-   // SDL_SetRenderCliхаpRect(Renderer, &(SDL_Rect){ .x = 0, .y = 0 , .w = 400, .h = 400});
-   // SDL_RenderTexture();
+   int w, h;
+   status = SDL_GetWindowSizeInPixels(Game->Window, &w, &h);
+   if (status) { goto exit; }
+
    SDL_Rect fieldRect = {
-               Game->Field.CellSize,
-               Game->Field.CellSize,
+               (w - Game->Field.WidthInCells * Game->Field.CellSize) / 2,
+               (w - Game->Field.WidthInCells * Game->Field.CellSize) / 2,
                Game->Field.WidthInCells * Game->Field.CellSize,
                Game->Field.HeightInCells * Game->Field.CellSize };
 
    status = SDL_SetRenderDrawColor(Game->Renderer, 255, 255, 255, 0);
-   if (status) { goto exit; }
-
-   SDL_FPoint points[] = { 
-         { Game->Field.CellSize - 1, Game->Field.CellSize - 1 },
-         { (Game->Field.WidthInCells + 1) * Game->Field.CellSize, Game->Field.CellSize - 1 },
-         { (Game->Field.WidthInCells + 1) * Game->Field.CellSize, (Game->Field.HeightInCells + 1) * Game->Field.CellSize},
-         { Game->Field.CellSize - 1, (Game->Field.HeightInCells + 1) * Game->Field.CellSize},
-         { Game->Field.CellSize - 1, Game->Field.CellSize - 1 } };
-   status = SDL_RenderLines(Game->Renderer, points, 5);
    if (status) { goto exit; }
 
    status = SDL_SetRenderViewport(Game->Renderer, &fieldRect);
