@@ -22,16 +22,9 @@ RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/output")
 
 target_link_libraries(${PROJECT_NAME} PUBLIC SDL3_ttf::SDL3_ttf SDL3_image::SDL3_image SDL3::SDL3)
 
-SET(TILE_SHEET_PATH ${CMAKE_SOURCE_DIR}/assets/snake_tile_sheet.png)
+SET(ASSETS_PATH ${CMAKE_SOURCE_DIR}/assets)
 
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy "${TILE_SHEET_PATH}" "${CMAKE_SOURCE_DIR}/output"
-    COMMENT "Copying tilesheet to output directory")
-
-SET(FONT_PATH ${CMAKE_SOURCE_DIR}/assets/kongtext.regular.ttf)
-
-add_custom_command(
-    TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy "${FONT_PATH}" "${CMAKE_SOURCE_DIR}/output"
-    COMMENT "Copying font file to output directory")
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${ASSETS_PATH}" "${CMAKE_SOURCE_DIR}/output"
+    COMMENT "Copying assets directory")

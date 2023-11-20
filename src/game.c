@@ -89,7 +89,7 @@ InitGame(GAME* Game)
    }
 
    // Game->Font = CreateFont();
-   Game->Tileset = CreateTileset(Game->Renderer, "snake_tile_sheet.png");
+   Game->Tileset = CreateTileset(Game->Renderer, "assets/tileset.png");
    if (NULL == Game->Renderer)
    {
       status = -1;
@@ -98,7 +98,7 @@ InitGame(GAME* Game)
    }
 
    Game->Font = CreateFont(
-                  "kongtext.regular.ttf",
+                  "assets/font.ttf",
                   Game->Field.CellSize,
                   (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0 });
 
