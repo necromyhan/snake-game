@@ -37,4 +37,9 @@ RenderTile(
    int               TileName,
    const SDL_FRect*  Dest);
 
+SDL_Texture*
+CreateTextureFromImage(
+   SDL_Renderer*  Renderer,
+   const char*    Path);
+
 #endif //__SNAKE_TILES_H__

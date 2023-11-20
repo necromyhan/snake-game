@@ -13,6 +13,7 @@ typedef struct _TILESET
    SDL_Texture*   Texture;
    int            Width;
    int            Height;
+   SDL_Texture*   Title;    
 } TILESET;
 
 TILESET*
@@ -58,7 +59,6 @@ CreateTileset(
       goto error;
    }
 
-
    tileset->Texture = tsTexture;
    tileset->Height = h;
    tileset->Width = w;
@@ -82,6 +82,7 @@ DestroyTileset(
    {
       SDL_DestroyTexture(Tileset->Texture);
       SDL_free(Tileset);
+      IMG_Quit();
    }
 }
 
@@ -99,7 +100,6 @@ RenderTile(
       status = -1;
       goto exit;
    }
-
 
    SDL_FRect tile;
    tile.x = (TileName * TileSize) % Tileset->Width;
@@ -119,4 +119,35 @@ RenderTile(
 
 exit:
    return status;
+}
+
+SDL_Texture*
+CreateTextureFromImage(
+   SDL_Renderer*  Renderer,
+   const char*    Path)
+{
+   SDL_Texture* texture = NULL;
+
+   if (NULL == Renderer || NULL == Path)
+   {
+      goto exit;
+   }
+
+   SDL_Surface* tsSurface = IMG_Load(Path);
+   if (NULL == tsSurface) 
+   { 
+      SDL_Log("IMG_Load error = %s", SDL_GetError());
+      goto exit;
+   }
+
+   texture = SDL_CreateTextureFromSurface(Renderer, tsSurface);
+   if (NULL == texture) 
+   { 
+      SDL_Log("SDL_CreateTextureFromSurface error = %s", SDL_GetError());
+      goto exit;
+   }
+   
+exit:
+   SDL_DestroySurface(tsSurface);
+   return texture;
 }
