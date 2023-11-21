@@ -42,4 +42,11 @@ CreateTextureFromImage(
    SDL_Renderer*  Renderer,
    const char*    Path);
 
+int
+RenderFieldOutline(
+   SDL_Renderer*  Renderer,
+   TILESET*       Tileset,
+   SDL_Rect*      Outline,
+   int            CellSize);
+
 #endif //__SNAKE_TILES_H__

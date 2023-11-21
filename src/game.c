@@ -261,7 +261,11 @@ GameplayRender(GAME*  Game)
                Game->Field.WidthInCells * Game->Field.CellSize,
                Game->Field.HeightInCells * Game->Field.CellSize };
 
-   status = SDL_SetRenderDrawColor(Game->Renderer, 255, 255, 255, 0);
+   status = RenderFieldOutline(
+                  Game->Renderer,
+                  Game->Tileset,
+                  &fieldRect,
+                  Game->Field.CellSize);
    if (status) { goto exit; }
 
    status = SDL_SetRenderViewport(Game->Renderer, &fieldRect);

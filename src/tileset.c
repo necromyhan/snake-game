@@ -151,3 +151,110 @@ exit:
    SDL_DestroySurface(tsSurface);
    return texture;
 }
+
+int
+RenderFieldOutline(
+   SDL_Renderer*  Renderer,
+   TILESET*       Tileset,
+   SDL_Rect*      Outline,
+   int            CellSize)
+{
+   int status = 0;
+
+   if (NULL == Renderer || NULL == Tileset)
+   {
+      status = -1;
+      goto exit;
+   }
+
+   SDL_FRect tile;
+
+   tile.x = 0;
+   tile.y = 48;
+   tile.w = 1;
+   tile.h = 16;
+
+   SDL_FRect dest = { 0 };
+
+   for (int i = 0; i < Outline->h; i += CellSize)
+   {
+      dest.w = CellSize / 16;
+      dest.h = CellSize;
+      dest.x = Outline->x - dest.w;
+      dest.y = Outline->y + i;
+      status = SDL_RenderTexture(
+                     Renderer,
+                     Tileset->Texture,
+                     &tile,
+                     &dest);
+      if (status)
+      {
+         SDL_Log("SDL_RenderTexture error = %s", SDL_GetError());
+         goto exit;
+      }
+   }
+
+   for (int i = 0; i < Outline->h; i += CellSize)
+   {
+      dest.w = CellSize / 16;
+      dest.h = CellSize;
+      dest.x = Outline->x + Outline->w;
+      dest.y = Outline->y + i;
+      status = SDL_RenderTexture(
+                     Renderer,
+                     Tileset->Texture,
+                     &tile,
+                     &dest);
+      if (status)
+      {
+         SDL_Log("SDL_RenderTexture error = %s", SDL_GetError());
+         goto exit;
+      }
+   }
+
+
+   tile.x = 16;
+   tile.y = 48;
+   tile.w = 16;
+   tile.h = 1;
+
+   for (int i = 0; i < Outline->w; i += CellSize)
+   {
+      dest.h = CellSize / 16;
+      dest.w = CellSize;
+      dest.x = Outline->x + i;
+      dest.y = Outline->y - dest.h;
+      status = SDL_RenderTexture(
+                     Renderer,
+                     Tileset->Texture,
+                     &tile,
+                     &dest);
+      if (status)
+      {
+         SDL_Log("SDL_RenderTexture error = %s", SDL_GetError());
+         goto exit;
+      }
+   }
+
+   for (int i = 0; i < Outline->w; i += CellSize)
+   {
+      dest.h = CellSize / 16;
+      dest.w = CellSize;
+      dest.x = Outline->x + i;
+      dest.y = Outline->y + Outline->h;
+      status = SDL_RenderTexture(
+                     Renderer,
+                     Tileset->Texture,
+                     &tile,
+                     &dest);
+      if (status)
+      {
+         SDL_Log("SDL_RenderTexture error = %s", SDL_GetError());
+         goto exit;
+      }
+   }
+   
+
+exit:
+   return status;
+}
