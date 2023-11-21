@@ -4,6 +4,7 @@
 #include "game.h"
 #include "menu.h"
 
+static SDL_Texture* gStartMenuPic = NULL;
 
 MENU*
 CreateMenu(
@@ -109,10 +110,32 @@ StartMenuRender(GAME* Game)
       goto exit;
    }
 
+   if (!gStartMenuPic)
+   {
+      gStartMenuPic = CreateTextureFromImage(Game->Renderer, "assets/title.png");
+      if (NULL == gStartMenuPic)
+      {
+         status = -1;
+         goto exit;
+      }
+   }
+
    status = SDL_SetRenderDrawColor(Game->Renderer, 0, 0, 0, 0);
    if (status) { goto exit; }
    
    status = SDL_RenderFillRect(Game->Renderer, NULL);
+   if (status) { goto exit; }
+
+   int w, h;
+   status = SDL_GetWindowSizeInPixels(Game->Window, &w, &h);
+   if (status) { goto exit; }
+
+   SDL_FRect picRect = {
+               (w - (Game->Field.WidthInCells - 1) * Game->Field.CellSize) / 2,
+               0,
+               (Game->Field.WidthInCells - 1) * Game->Field.CellSize,
+               (Game->Field.WidthInCells - 1) * Game->Field.CellSize };
+   SDL_RenderTexture(Game->Renderer, gStartMenuPic, NULL, &picRect);
    if (status) { goto exit; }
 
    int posX = Game->Field.CellSize;
