@@ -22,6 +22,7 @@ typedef struct _SNAKE
    int               Length;    ///< Snake body length
    SNAKE_DIRECTION   Direction; ///< Current movement direction
    SDL_FRect*        Body;      ///< Array of body rects
+   bool              InputHandled;
 } SNAKE;
 
 

@@ -160,46 +160,50 @@ GameplayHandleEvents(
       goto exit;
    }
 
-   if (Event->type == SDL_EVENT_KEY_DOWN)
+   if (Game->Snake->InputHandled)
    {
-      switch (Event->key.keysym.sym)
+      if (Event->type == SDL_EVENT_KEY_DOWN)
       {
-         case SDLK_UP:
+         switch (Event->key.keysym.sym)
          {
-            if (Game->Snake->Direction != SnakeDirectionUp
-                && Game->Snake->Direction != SnakeDirectionDown)
+            case SDLK_UP:
             {
-               Game->Snake->Direction = SnakeDirectionUp;
+               if (Game->Snake->Direction != SnakeDirectionUp
+                  && Game->Snake->Direction != SnakeDirectionDown)
+               {
+                  Game->Snake->Direction = SnakeDirectionUp;
+               }
             }
-         }
-         break;
-         case SDLK_DOWN:
-         {
-            if (Game->Snake->Direction != SnakeDirectionUp
-                 && Game->Snake->Direction != SnakeDirectionDown)
+            break;
+            case SDLK_DOWN:
             {
-               Game->Snake->Direction = SnakeDirectionDown;
+               if (Game->Snake->Direction != SnakeDirectionUp
+                  && Game->Snake->Direction != SnakeDirectionDown)
+               {
+                  Game->Snake->Direction = SnakeDirectionDown;
+               }
             }
-         }
-         break;
-         case SDLK_RIGHT:
-         {
-            if (Game->Snake->Direction != SnakeDirectionLeft
-                 && Game->Snake->Direction != SnakeDirectionRight)
+            break;
+            case SDLK_RIGHT:
             {
-               Game->Snake->Direction = SnakeDirectionRight;
+               if (Game->Snake->Direction != SnakeDirectionLeft
+                  && Game->Snake->Direction != SnakeDirectionRight)
+               {
+                  Game->Snake->Direction = SnakeDirectionRight;
+               }
             }
-         }
-         break;
-         case SDLK_LEFT:
-         {
-            if (Game->Snake->Direction != SnakeDirectionRight
-                 && Game->Snake->Direction != SnakeDirectionLeft)
+            break;
+            case SDLK_LEFT:
             {
-               Game->Snake->Direction = SnakeDirectionLeft;
+               if (Game->Snake->Direction != SnakeDirectionRight
+                  && Game->Snake->Direction != SnakeDirectionLeft)
+               {
+                  Game->Snake->Direction = SnakeDirectionLeft;
+               }
             }
+            break;
          }
-         break;
+         Game->Snake->InputHandled = false;
       }
    }
 
@@ -235,6 +239,8 @@ GameplayUpdate(GAME*  Game)
    MoveSnake(Game->Snake,
                Game->Field.WidthInCells * Game->Field.CellSize,
                Game->Field.HeightInCells * Game->Field.CellSize);
+   
+   Game->Snake->InputHandled = true;
 
 exit:
    return status;

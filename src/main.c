@@ -22,6 +22,14 @@ static SCENE*  gScenes[] =
 };
 GAME_STATE gCurrentScene = StateMenu;
 
+static const int gSceneFps[] =
+{
+   60,
+   5,
+   60
+};
+
+
 static
 int
 SdlInit(void)
@@ -49,6 +57,7 @@ IsPeriodPassed(
    int  Period,
    int  LastUpdateTime)
 {
+
    int currentTime = SDL_GetTicks();
    if ((currentTime - LastUpdateTime) >= Period)
    {
@@ -87,7 +96,7 @@ int main()
       gScenes[gCurrentScene]->HandleEvents(&game, &event);
 
       // WaitTime(300, lastFrameTime);
-      if (IsPeriodPassed(200, lastFrameTime))
+      if (IsPeriodPassed(1000 / gSceneFps[gCurrentScene], lastFrameTime))
       {
          gScenes[gCurrentScene]->Update(&game);
          if (IsSnakeIntersection(game.Snake))

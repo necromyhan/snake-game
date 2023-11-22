@@ -38,6 +38,7 @@ CreateSnake(
    snake->Length = 2;
    snake->Direction = SnakeDirectionRight;
 
+   snake->InputHandled = true;
 exit:
    return snake;
 }
