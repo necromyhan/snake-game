@@ -9,7 +9,7 @@ static SDL_Texture* gStartMenuPic = NULL;
 enum
 {
    TitleWidth = 256,
-   TitleHeight = 144
+   TitleHeight = 128
 };
 
 MENU*
