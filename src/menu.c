@@ -6,6 +6,12 @@
 
 static SDL_Texture* gStartMenuPic = NULL;
 
+enum
+{
+   TitleWidth = 256,
+   TitleHeight = 144
+};
+
 MENU*
 CreateMenu(
    int            Count,
@@ -131,15 +137,15 @@ StartMenuRender(GAME* Game)
    if (status) { goto exit; }
 
    SDL_FRect picRect = {
-               (w - (Game->Field.WidthInCells - 1) * Game->Field.CellSize) / 2,
+               (w - 3 * TitleWidth) / 2,
                0,
-               (Game->Field.WidthInCells - 1) * Game->Field.CellSize,
-               (Game->Field.WidthInCells - 1) * Game->Field.CellSize };
+               TitleWidth * 3,
+               TitleHeight * 3};
    SDL_RenderTexture(Game->Renderer, gStartMenuPic, NULL, &picRect);
    if (status) { goto exit; }
 
    int posX = Game->Field.CellSize;
-   int posY = Game->Field.CellSize;
+   int posY = 0 + TitleHeight * 3;
    for (int i = 0; i < Game->StartMenu->Count; ++i)
    {
       status = PrintFontToRenderer(
