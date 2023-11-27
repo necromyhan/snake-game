@@ -105,6 +105,13 @@ StartMenuUpdate(GAME* Game)
    return 0;
 }
 
+void
+RenderBtnSelect(GAME* Game)
+{
+   
+}
+
+
 int
 StartMenuRender(GAME* Game)
 {
@@ -126,6 +133,8 @@ StartMenuRender(GAME* Game)
       }
    }
 
+   SDL_SetRenderViewport(Game->Renderer, NULL);
+
    status = SDL_SetRenderDrawColor(Game->Renderer, 0, 0, 0, 0);
    if (status) { goto exit; }
    
@@ -136,29 +145,38 @@ StartMenuRender(GAME* Game)
    status = SDL_GetWindowSizeInPixels(Game->Window, &w, &h);
    if (status) { goto exit; }
 
+   int fac = w / TitleWidth;
    SDL_FRect picRect = {
-               (w - 3 * TitleWidth) / 2,
-               0,
-               TitleWidth * 3,
-               TitleHeight * 3};
+               (w - fac * TitleWidth) / 2,
+               Game->Field.CellSize / 2,
+               TitleWidth * fac,
+               TitleHeight * fac};
    SDL_RenderTexture(Game->Renderer, gStartMenuPic, NULL, &picRect);
    if (status) { goto exit; }
 
-   int posX = Game->Field.CellSize;
-   int posY = 0 + TitleHeight * 3;
+   int posX = Game->Field.CellSize * 3;
+   int posY = Game->Field.CellSize + TitleHeight * fac;
    for (int i = 0; i < Game->StartMenu->Count; ++i)
    {
       status = PrintFontToRenderer(
             Game->Font,
             Game->Renderer,
             Game->StartMenu->Items[i].Text,
-            (Game->StartMenu->Items[i].State) ? 
-            (SDL_Color){.b = 200, .g = 0, .r = 0, .a = 0} : 
             (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
             (SDL_Point){.x = posX, .y = posY});
       if (status)
       {
          goto exit;
+      }
+
+      if (Game->StartMenu->Items[i].State)
+      {
+         status = PrintFontToRenderer(
+            Game->Font,
+            Game->Renderer,
+            ">",
+            (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
+            (SDL_Point){.x = posX - Game->Field.CellSize, .y = posY});
       }
 
       // TODO: get screen width from window

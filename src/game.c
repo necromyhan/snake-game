@@ -261,6 +261,12 @@ GameplayRender(GAME*  Game)
    status = SDL_GetWindowSizeInPixels(Game->Window, &w, &h);
    if (status) { goto exit; }
 
+   status = SDL_SetRenderDrawColor(Game->Renderer, 0, 0, 0, 0);
+   if (status) { goto exit; }
+
+   status = SDL_RenderFillRect(Game->Renderer, NULL);
+   if (status) { goto exit; }
+
    SDL_Rect fieldRect = {
                (w - Game->Field.WidthInCells * Game->Field.CellSize) / 2,
                (w - Game->Field.WidthInCells * Game->Field.CellSize) / 2,
@@ -275,23 +281,15 @@ GameplayRender(GAME*  Game)
    if (status) { goto exit; }
 
    status = SDL_SetRenderViewport(Game->Renderer, &fieldRect);
-   if (status) { goto exit; }
-
-   status = SDL_SetRenderDrawColor(Game->Renderer, 0, 0, 0, 0);
-   if (status) { goto exit; }
-
-   status = SDL_RenderFillRect(
-               Game->Renderer,
-               &(SDL_FRect){ 
-                  0, 0, 
-                  Game->Field.WidthInCells * Game->Field.CellSize,
-                  Game->Field.HeightInCells * Game->Field.CellSize});
-   if (status) { goto exit; }
+   if (status) { goto exit; }   
 
    status = RenderApple(Game->Renderer, Game->Tileset, &Game->Apple);
    if (status) { goto exit; }
 
    status = RenderSnake(Game->Renderer, Game->Tileset, Game->Snake);
+   if (status) { goto exit; }
+
+   status = SDL_SetRenderViewport(Game->Renderer, NULL);
    if (status) { goto exit; }
 
    status = SDL_RenderPresent(Game->Renderer);
