@@ -246,6 +246,39 @@ exit:
    return status;
 }
 
+int
+RenderScore(GAME* Game)
+{
+   int status = 0;
+
+   if (NULL == Game)
+   {
+      status = -1;
+      goto exit;
+   }
+
+   int w, h;
+   status = SDL_GetWindowSizeInPixels(Game->Window, &w, &h);
+   if (status) { goto exit; }
+
+   int posX = (w - Game->Field.WidthInCells * Game->Field.CellSize) / 2;
+   int posY = posX + Game->Field.HeightInCells * Game->Field.CellSize;
+
+   char scoreStr[16];
+
+   int symNumber = SDL_snprintf(&scoreStr[0], 16, "Score: %d", Game->Snake->Length - 2);
+   status = PrintFontToRenderer(
+                  Game->Font,
+                  Game->Renderer,
+                  scoreStr,
+                  (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
+                  (SDL_Point){.x = posX, .y = posY});
+   if (status) { goto exit; }
+
+exit:
+   return status;
+}
+
 static
 int
 GameplayRender(GAME*  Game)
@@ -290,6 +323,9 @@ GameplayRender(GAME*  Game)
    if (status) { goto exit; }
 
    status = SDL_SetRenderViewport(Game->Renderer, NULL);
+   if (status) { goto exit; }
+
+   status = RenderScore(Game);
    if (status) { goto exit; }
 
    status = SDL_RenderPresent(Game->Renderer);
