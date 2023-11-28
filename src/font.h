@@ -15,6 +15,18 @@ void
 DestroyFont(FONT* Font);
 
 int
+SetFontSize(
+   FONT* Font,
+   int   Size);
+
+int
+GetTextSize(
+   const FONT* Font,
+   const char* Text,
+   int*        Width,
+   int*        Height);
+
+int
 PrintFontToRenderer(
    const FONT*    Font,
    SDL_Renderer*  Renderer,

@@ -99,13 +99,14 @@ int main()
       if (IsPeriodPassed(1000 / gSceneFps[gCurrentScene], lastFrameTime))
       {
          gScenes[gCurrentScene]->Update(&game);
+         gScenes[gCurrentScene]->Render(&game);
+         gInputHandled = false;
          if (IsSnakeIntersection(game.Snake))
          {
             ReinitSnake(game.Snake);
             gCurrentScene = StateGameOver;
+            SDL_Delay(1000);
          }
-         gScenes[gCurrentScene]->Render(&game);
-         gInputHandled = false;
          lastFrameTime = SDL_GetTicks();
       }
    }

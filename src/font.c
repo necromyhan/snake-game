@@ -58,6 +58,50 @@ DestroyFont(FONT* Font)
 }
 
 int
+SetFontSize(
+   FONT* Font,
+   int   Size)
+{
+   int status = 0;
+
+   if (NULL == Font)
+   {
+      status = -1;
+      goto exit;
+   }
+
+   status = TTF_SetFontSize(Font->TtfFont, Size);
+   if (status) { goto exit; }
+
+   Font->Size = Size;
+   
+exit:
+   return status;
+}
+
+int
+GetTextSize(
+   const FONT* Font,
+   const char* Text,
+   int*        Width,
+   int*        Height)
+{
+   int status = 0;
+
+   if (NULL == Font || NULL == Text)
+   {
+      status = -1;
+      goto exit;
+   }
+
+   status = TTF_SizeUTF8(Font->TtfFont, Text, Width, Height);
+
+exit:
+   return status;
+}
+
+
+int
 PrintFontToRenderer(
    const FONT*    Font,
    SDL_Renderer*  Renderer,

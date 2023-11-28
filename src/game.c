@@ -39,8 +39,6 @@ InitGame(
    temp /= MinumumCellSize;
    Game->Field.CellSize = temp * MinumumCellSize; 
 
-   SDL_Log("CellSize = %d", Game->Field.CellSize);
-
    Game->Field.WidthInCells   = FieldWidthInCells;
    Game->Field.HeightInCells  = FieldHeightInCells;
 
@@ -79,7 +77,7 @@ InitGame(
       Game->Field.HeightInCells);
 
    Game->Window = SDL_CreateWindow(
-                  "SNAKE",
+                  "Snake Game",
                   Game->Field.CellSize * Game->Field.WidthInCells + 2 * Game->Field.CellSize,
                   Game->Field.CellSize * Game->Field.HeightInCells + 4 * Game->Field.CellSize,
                   0);
@@ -129,8 +127,8 @@ ExitGame(GAME* Game)
 {
    if (Game)
    {
-      // DestroyFont(Game->Font);
-      // Game->Font = NULL;
+      DestroyFont(Game->Font);
+      Game->Font = NULL;
       Game->Apple = (APPLE){ 0 };
       Game->Field = (GAME_FIELD){ 0 };
       DestroyMenu(Game->StartMenu);

@@ -154,35 +154,55 @@ StartMenuRender(GAME* Game)
    SDL_RenderTexture(Game->Renderer, gStartMenuPic, NULL, &picRect);
    if (status) { goto exit; }
 
-   int posX = Game->Field.CellSize * 3;
+   int textW;
+   int textH;
+   status = GetTextSize(Game->Font, "Options", &textW, NULL);
+   if (status) { goto exit; }
+
+   int posX = (w - textW) / 2;
    int posY = Game->Field.CellSize + TitleHeight * fac;
    for (int i = 0; i < Game->StartMenu->Count; ++i)
    {
       status = PrintFontToRenderer(
-            Game->Font,
-            Game->Renderer,
-            Game->StartMenu->Items[i].Text,
-            (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
-            (SDL_Point){.x = posX, .y = posY});
-      if (status)
-      {
-         goto exit;
-      }
+                     Game->Font,
+                     Game->Renderer,
+                     Game->StartMenu->Items[i].Text,
+                     (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
+                     (SDL_Point){.x = posX, .y = posY});
+      if (status) { goto exit; }
 
       if (Game->StartMenu->Items[i].State)
       {
          status = PrintFontToRenderer(
-            Game->Font,
-            Game->Renderer,
-            ">",
-            (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
-            (SDL_Point){.x = posX - Game->Field.CellSize, .y = posY});
+                     Game->Font,
+                     Game->Renderer,
+                     ">",
+                     (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
+                     (SDL_Point){.x = posX - Game->Field.CellSize, .y = posY});
+         if (status) { goto exit; }
       }
 
-      // TODO: get screen width from window
       posY += Game->Field.CellSize;
    }
    
+   status = SetFontSize(Game->Font, Game->Field.CellSize / 2);
+   if (status) { goto exit; }
+
+   char copyrightStr[] = "2023 Necromyhan";
+   status = GetTextSize(Game->Font, copyrightStr, &textW, &textH);
+   if (status) { goto exit; }
+
+   status = PrintFontToRenderer(
+                     Game->Font,
+                     Game->Renderer,
+                     copyrightStr,
+                     (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
+                     (SDL_Point){.x = (w - textW) / 2, .y = h - 2 * textH});
+   if (status) { goto exit; }
+
+   status = SetFontSize(Game->Font, Game->Field.CellSize);
+   if (status) { goto exit; }
+
    status = SDL_RenderPresent(Game->Renderer);
 
 exit:
@@ -271,27 +291,78 @@ GameOverMenuRender(GAME* Game)
    status = SDL_RenderFillRect(Game->Renderer, NULL);
    if (status) { goto exit; }
 
-   int posX = Game->Field.CellSize;
-   int posY = Game->Field.CellSize;
+   int w, h;
+   status = SDL_GetWindowSizeInPixels(Game->Window, &w, &h);
+   if (status) { goto exit; }
+
+   int textW, textH;
+   const char goStr[] = "GAME OVER";
+   status = GetTextSize(Game->Font, goStr, &textW, &textH);
+   if (status) { goto exit; }
+
+   status = PrintFontToRenderer(
+                     Game->Font,
+                     Game->Renderer,
+                     "GAME OVER",
+                     (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
+                     (SDL_Point){.x = (w - textW) / 2, .y = h / 3});
+   if (status) { goto exit; }
+
+   status = SetFontSize(Game->Font, Game->Field.CellSize / 2);
+   if (status) { goto exit; }
+
+   status = GetTextSize(Game->Font, "Retry", &textW, NULL);
+   if (status) { goto exit; }
+
+   int posX = (w - textW) / 2;
+   int posY = h / 3 + textH +  2 * Game->Field.CellSize;
    for (int i = 0; i < Game->GameOverMenu->Count; ++i)
    {
       status = PrintFontToRenderer(
-            Game->Font,
-            Game->Renderer,
-            Game->GameOverMenu->Items[i].Text,
-            (Game->GameOverMenu->Items[i].State) ? 
-            (SDL_Color){.b = 200, .g = 0, .r = 0, .a = 0} : 
-            (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
-            (SDL_Point){.x = posX, .y = posY});
+                     Game->Font,
+                     Game->Renderer,
+                     Game->GameOverMenu->Items[i].Text,
+                     (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
+                     (SDL_Point){.x = posX, .y = posY});
       if (status)
       {
          goto exit;
+      }
+
+      if (Game->GameOverMenu->Items[i].State)
+      {
+         status = PrintFontToRenderer(
+                     Game->Font,
+                     Game->Renderer,
+                     ">",
+                     (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
+                     (SDL_Point){.x = posX - Game->Field.CellSize, .y = posY});
+         if (status) { goto exit; }
       }
 
       // TODO: get screen width from window
       posY += Game->Field.CellSize;
    }
    
+   
+
+   char scoreStr[16];
+   int symNumber = SDL_snprintf(&scoreStr[0], 16, "Score: %d", Game->Snake->Length - 2);
+
+   status = GetTextSize(Game->Font, scoreStr, &textW, NULL);
+   if (status) { goto exit; }
+
+   status = PrintFontToRenderer(
+                     Game->Font,
+                     Game->Renderer,
+                     scoreStr,
+                     (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
+                     (SDL_Point){.x = (w - textW) / 2, .y = h / 3 + textH + Game->Field.CellSize / 4});
+         if (status) { goto exit; }
+
+   status = SetFontSize(Game->Font, Game->Field.CellSize);
+   if (status) { goto exit; }
+
    status = SDL_RenderPresent(Game->Renderer);
 
 exit:
