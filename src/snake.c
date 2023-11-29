@@ -165,7 +165,7 @@ RenderSnake(
 
    for (int i = Snake->Length - 1; i > 0; --i)
    {  
-      res = RenderTile(Renderer, Tileset, SnakeBody1Tile, &Snake->Body[i]);   
+      res = RenderTile(Renderer, Tileset, i % 3, &Snake->Body[i]);   
    }
 
    res = RenderTile(Renderer, Tileset, SnakeHeadTile, &Snake->Body[0]);
