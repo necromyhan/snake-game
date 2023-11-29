@@ -9,6 +9,8 @@
 #include "tileset.h"
 #include "font.h"
 
+extern Uint32 gChangeSceneEventType;
+
 typedef enum _GAME_STATE 
 {
    StateMenu,
@@ -42,6 +44,7 @@ typedef struct _GAME
    MENU*          GameOverMenu;
    GAME_FIELD     Field;
    APPLE          Apple;
+   int            PreviousScore;
 } GAME;
 
 
@@ -77,4 +80,10 @@ typedef struct _SCENE
 extern SCENE gGameplayScene;
 extern SCENE gMenuScene;
 extern SCENE gGameOverScene;
+
+int
+PushUserEvent(
+   Uint32   Type,
+   Sint32   Code);
+
 #endif //__SNAKE_GAME_GLOBAL_H__

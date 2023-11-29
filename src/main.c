@@ -20,7 +20,7 @@ static SCENE*  gScenes[] =
    &gGameplayScene,
    &gGameOverScene
 };
-GAME_STATE gCurrentScene = StateMenu;
+static GAME_STATE gCurrentScene = StateMenu;
 
 static const int gSceneFps[] =
 {
@@ -91,6 +91,11 @@ int main()
          {
             isRunning = false;
          }
+
+         else if(event.type == gChangeSceneEventType)
+         {
+            gCurrentScene = event.user.code;
+         }
       }
 
       gScenes[gCurrentScene]->HandleEvents(&game, &event);
@@ -101,12 +106,6 @@ int main()
          gScenes[gCurrentScene]->Update(&game);
          gScenes[gCurrentScene]->Render(&game);
          gInputHandled = false;
-         if (IsSnakeIntersection(game.Snake))
-         {
-            ReinitSnake(game.Snake);
-            gCurrentScene = StateGameOver;
-            SDL_Delay(1000);
-         }
          lastFrameTime = SDL_GetTicks();
       }
    }

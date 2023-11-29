@@ -49,8 +49,6 @@ DestroyMenu(MENU* Menu)
    }
 }
 
-extern GAME_STATE gCurrentScene;
-
 int
 StartMenuHandleEvents(
    GAME*             Game,
@@ -89,7 +87,7 @@ StartMenuHandleEvents(
          {
             if (Game->StartMenu->ActiveType == StartMenuStart)
             {
-               gCurrentScene = StateGameplay;
+               PushUserEvent(gChangeSceneEventType, StateGameplay);
             }
             else if (Game->StartMenu->ActiveType == StartMenuExit)
             {
@@ -110,9 +108,6 @@ StartMenuUpdate(GAME* Game)
 {
    return 0;
 }
-
-
-
 
 int
 StartMenuRender(GAME* Game)
@@ -254,11 +249,11 @@ GameOverMenuHandleEvents(
          {
             if (Game->GameOverMenu->ActiveType == GameOverMenuExit)
             {
-               gCurrentScene = StateMenu;
+               PushUserEvent(gChangeSceneEventType, StateMenu);
             }
             else if (Game->GameOverMenu->ActiveType == GameOverMenuRetry)
             {
-               gCurrentScene = StateGameplay;
+               PushUserEvent(gChangeSceneEventType, StateGameplay);
             }
          }
       }
@@ -344,9 +339,8 @@ GameOverMenuRender(GAME* Game)
       posY += Game->Field.CellSize;
    }
    
-   
    char scoreStr[16];
-   int symNumber = SDL_snprintf(&scoreStr[0], 16, "Score: %d", Game->Snake->Length - 2);
+   int symNumber = SDL_snprintf(&scoreStr[0], 16, "Score: %d", Game->PreviousScore);
 
    status = GetTextSize(Game->Font, scoreStr, Game->Field.CellSize / 2, &textW, NULL);
    if (status) { goto exit; }

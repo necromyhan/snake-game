@@ -9,6 +9,8 @@ enum {
    FieldHeightInCells = 10
 };
 
+Uint32 gChangeSceneEventType = (Uint32)-1;
+
 static const char* gStartMenuString[] =
 {
    "start",
@@ -77,10 +79,10 @@ InitGame(
 
 
    Game->Window = SDL_CreateWindow(
-                  "Snake Game",
-                  Game->Field.CellSize * Game->Field.WidthInCells + 2 * Game->Field.CellSize,
-                  Game->Field.CellSize * Game->Field.HeightInCells + 4 * Game->Field.CellSize,
-                  0);
+                     "Snake Game",
+                     Game->Field.CellSize * Game->Field.WidthInCells + 2 * Game->Field.CellSize,
+                     Game->Field.CellSize * Game->Field.HeightInCells + 4 * Game->Field.CellSize,
+                     0);
    if (NULL == Game->Window)
    {
       status = -1;
@@ -112,6 +114,16 @@ InitGame(
                   "assets/font.ttf",
                   Game->Field.CellSize,
                   (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0 });
+
+   Uint32 changeSceneEventType = SDL_RegisterEvents(1);
+   if (((Uint32)-1) == changeSceneEventType)
+   {
+      goto error;
+      status = -1;
+   }
+   gChangeSceneEventType = changeSceneEventType;
+
+   Game->PreviousScore = 0;
 
    goto exit;
 
@@ -209,6 +221,33 @@ GameplayHandleEvents(
    return status;
 }
 
+int
+PushUserEvent(
+   Uint32   Type,
+   Sint32   Code)
+{
+   int status = 0;
+
+   SDL_Event myEvent;
+   SDL_memset(&myEvent, 0, sizeof(myEvent));
+
+   myEvent.type = Type;
+   myEvent.user.code = Code;
+
+   status = SDL_PushEvent(&myEvent);
+   if (status != 1)
+   {
+      status = -1;
+   }
+   else
+   {
+      status = 0;
+   }
+
+exit:
+   return status;
+}
+
 static
 int
 GameplayUpdate(GAME*  Game)
@@ -218,6 +257,20 @@ GameplayUpdate(GAME*  Game)
    if (NULL == Game)
    {
       status = -1;
+      goto exit;
+   }
+
+   if (IsSnakeIntersection(Game->Snake))
+   {
+      status = PushUserEvent(gChangeSceneEventType, StateGameOver);
+      if (status)
+      {
+         goto exit;
+      }
+      Game->PreviousScore = Game->Snake->Length - 2;
+      ReinitSnake(Game->Snake);
+      SDL_Delay(1500);
+
       goto exit;
    }
 
