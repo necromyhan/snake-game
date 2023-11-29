@@ -301,21 +301,21 @@ GameOverMenuRender(GAME* Game)
                      "GAME OVER",
                      Game->Field.CellSize * 3 / 2,
                      (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
-                     (SDL_Point){.x = (w - textW) / 2, .y = h / 3});
+                     (SDL_Point){.x = (w - textW) / 2, .y = h / 4});
    if (status) { goto exit; }
 
-   status = GetTextSize(Game->Font, "Restart", Game->Field.CellSize / 2, &textW, NULL);
+   status = GetTextSize(Game->Font, "restart", Game->Field.CellSize, &textW, NULL);
    if (status) { goto exit; }
 
    int posX = (w - textW) / 2;
-   int posY = h / 3 + textH +  2 * Game->Field.CellSize;
+   int posY = h / 4 + textH +  3 * Game->Field.CellSize;
    for (int i = 0; i < Game->GameOverMenu->Count; ++i)
    {
       status = PrintFontToRenderer(
                      Game->Font,
                      Game->Renderer,
                      Game->GameOverMenu->Items[i].Text,
-                     Game->Field.CellSize / 2,
+                     Game->Field.CellSize,
                      (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
                      (SDL_Point){.x = posX, .y = posY});
       if (status)
@@ -329,7 +329,7 @@ GameOverMenuRender(GAME* Game)
                      Game->Font,
                      Game->Renderer,
                      ">",
-                     Game->Field.CellSize / 2,
+                     Game->Field.CellSize,
                      (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
                      (SDL_Point){.x = posX - Game->Field.CellSize, .y = posY});
          if (status) { goto exit; }
@@ -340,18 +340,18 @@ GameOverMenuRender(GAME* Game)
    }
    
    char scoreStr[16];
-   int symNumber = SDL_snprintf(&scoreStr[0], 16, "Score: %d", Game->PreviousScore);
+   int symNumber = SDL_snprintf(&scoreStr[0], 16, "score: %d", Game->PreviousScore);
 
-   status = GetTextSize(Game->Font, scoreStr, Game->Field.CellSize / 2, &textW, NULL);
+   status = GetTextSize(Game->Font, scoreStr, 2 * Game->Field.CellSize / 3, &textW, NULL);
    if (status) { goto exit; }
 
    status = PrintFontToRenderer(
                      Game->Font,
                      Game->Renderer,
                      scoreStr,
-                     Game->Field.CellSize / 2,
+                     2 * Game->Field.CellSize / 3,
                      (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
-                     (SDL_Point){.x = (w - textW) / 2, .y = h / 3 + textH + Game->Field.CellSize / 4});
+                     (SDL_Point){.x = (w - textW) / 2, .y = h / 4 + textH + Game->Field.CellSize / 2});
          if (status) { goto exit; }
 
    status = SDL_RenderPresent(Game->Renderer);

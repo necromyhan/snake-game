@@ -20,7 +20,6 @@ static SCENE*  gScenes[] =
    &gGameplayScene,
    &gGameOverScene
 };
-static GAME_STATE gCurrentScene = StateMenu;
 
 static const int gSceneFps[] =
 {
@@ -29,6 +28,7 @@ static const int gSceneFps[] =
    60
 };
 
+static GAME_STATE gCurrentScene = StateMenu;
 
 static
 int
@@ -99,7 +99,6 @@ int main()
       }
 
       gScenes[gCurrentScene]->HandleEvents(&game, &event);
-
       // WaitTime(300, lastFrameTime);
       if (IsPeriodPassed(1000 / gSceneFps[gCurrentScene], lastFrameTime))
       {
