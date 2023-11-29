@@ -91,6 +91,12 @@ StartMenuHandleEvents(
             {
                gCurrentScene = StateGameplay;
             }
+            else if (Game->StartMenu->ActiveType == StartMenuExit)
+            {
+               SDL_Event event;
+               event.type = SDL_EVENT_QUIT;
+               SDL_PushEvent(&event);
+            }
          }
       }
    }
