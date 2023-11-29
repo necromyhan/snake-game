@@ -11,15 +11,14 @@ enum {
 
 static const char* gStartMenuString[] =
 {
-   "Start",
-   "Options",
-   "Exit"
+   "start",
+   "exit"
 };
 
 static const char* gGameOverMenuString[] =
 {
-   "Retry",
-   "Menu"
+   "restart",
+   "menu"
 };
 
 int
@@ -43,7 +42,7 @@ InitGame(
    Game->Field.HeightInCells  = FieldHeightInCells;
 
    // Start menu
-   Game->StartMenu = CreateMenu(3, gStartMenuString);
+   Game->StartMenu = CreateMenu(2, gStartMenuString);
    if (NULL == Game->StartMenu)
    {
       status = -1;
@@ -75,6 +74,7 @@ InitGame(
       Game->Field.CellSize,
       Game->Field.WidthInCells,
       Game->Field.HeightInCells);
+
 
    Game->Window = SDL_CreateWindow(
                   "Snake Game",
@@ -260,15 +260,16 @@ RenderScore(GAME* Game)
    if (status) { goto exit; }
 
    int posX = (w - Game->Field.WidthInCells * Game->Field.CellSize) / 2;
-   int posY = posX + Game->Field.HeightInCells * Game->Field.CellSize;
+   int posY = posX + Game->Field.HeightInCells * Game->Field.CellSize + Game->Field.CellSize / 2;
 
    char scoreStr[16];
-
    int symNumber = SDL_snprintf(&scoreStr[0], 16, "Score: %d", Game->Snake->Length - 2);
+
    status = PrintFontToRenderer(
                   Game->Font,
                   Game->Renderer,
                   scoreStr,
+                  Game->Field.CellSize / 2,
                   (SDL_Color){.b = 255, .g = 255, .r = 255, .a = 0},
                   (SDL_Point){.x = posX, .y = posY});
    if (status) { goto exit; }

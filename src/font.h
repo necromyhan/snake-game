@@ -15,14 +15,10 @@ void
 DestroyFont(FONT* Font);
 
 int
-SetFontSize(
-   FONT* Font,
-   int   Size);
-
-int
 GetTextSize(
    const FONT* Font,
    const char* Text,
+   int         Size,
    int*        Width,
    int*        Height);
 
@@ -31,6 +27,7 @@ PrintFontToRenderer(
    const FONT*    Font,
    SDL_Renderer*  Renderer,
    const char*    Text,
+   int            Size,
    SDL_Color      Color,
    SDL_Point      Position);
 

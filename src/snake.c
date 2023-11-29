@@ -125,7 +125,13 @@ ReinitSnake(
       goto exit;
    }
 
+   Snake->Body[0].x = 2 * Snake->Body[0].w;
+   Snake->Body[0].y = 2 * Snake->Body[0].h;
+   Snake->Body[1].x = (1) * Snake->Body[1].w;
+   Snake->Body[1].y = 2 * Snake->Body[1].h;
+
    Snake->Length = 2;
+   Snake->Direction = SnakeDirectionRight;
 
    exit: ;
 }

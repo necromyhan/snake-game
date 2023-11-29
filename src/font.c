@@ -57,6 +57,7 @@ DestroyFont(FONT* Font)
    }
 }
 
+static
 int
 SetFontSize(
    FONT* Font,
@@ -83,6 +84,7 @@ int
 GetTextSize(
    const FONT* Font,
    const char* Text,
+   int         Size,
    int*        Width,
    int*        Height)
 {
@@ -93,6 +95,9 @@ GetTextSize(
       status = -1;
       goto exit;
    }
+
+   status = SetFontSize((FONT*)Font, Size);
+   if (status) { goto exit; }
 
    status = TTF_SizeUTF8(Font->TtfFont, Text, Width, Height);
 
@@ -106,6 +111,7 @@ PrintFontToRenderer(
    const FONT*    Font,
    SDL_Renderer*  Renderer,
    const char*    Text,
+   int            Size,
    SDL_Color      Color,
    SDL_Point      Position)
 {
@@ -116,6 +122,9 @@ PrintFontToRenderer(
       status = -1;
       goto exit;
    }
+
+   status = SetFontSize((FONT*)Font, Size);
+   if (status) { goto exit; }
 
    SDL_Surface* surface = TTF_RenderText_Solid(Font->TtfFont, Text, Color);
    if (NULL == surface)

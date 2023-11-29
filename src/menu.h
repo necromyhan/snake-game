@@ -6,7 +6,6 @@
 enum START_MENU_ITEM_TYPE
 {
    StartMenuStart,
-   StartMenuOptions,
    StartMenuExit,
    StartMenuMax
 };
