@@ -5,11 +5,11 @@ Simple SDL3 game project written in C99.
 ### Linux
 
 ```bash
-git clone https://github.com/necromyhan/Snake-Game
+git clone https://github.com/necromyhan/snake-game
 ```
 
 ```bash
-cd Snake-Game
+cd snake-game
 ```
 
 ```bash
