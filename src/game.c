@@ -93,7 +93,7 @@ InitGame(
    //  SDL render faster than window creation by OS
    SDL_Delay(50);
 
-   Game->Renderer = SDL_CreateRenderer(Game->Window, NULL, SDL_RENDERER_ACCELERATED);
+   Game->Renderer = SDL_CreateRenderer(Game->Window, NULL, 0);
    if (NULL == Game->Renderer)
    {
       status = -1;
