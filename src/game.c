@@ -260,20 +260,6 @@ GameplayUpdate(GAME*  Game)
       goto exit;
    }
 
-   if (IsSnakeIntersection(Game->Snake))
-   {
-      status = PushUserEvent(gChangeSceneEventType, StateGameOver);
-      if (status)
-      {
-         goto exit;
-      }
-      Game->PreviousScore = Game->Snake->Length - 2;
-      ReinitSnake(Game->Snake);
-      SDL_Delay(1500);
-
-      goto exit;
-   }
-
    if (IsApple(&Game->Apple, Game->Snake))
    {
       float oldX = Game->Snake->Body[0].x;
@@ -292,6 +278,16 @@ GameplayUpdate(GAME*  Game)
                Game->Field.HeightInCells * Game->Field.CellSize);
    
    Game->Snake->InputHandled = true;
+
+   if (IsSnakeIntersection(Game->Snake))
+   {
+      status = PushUserEvent(gChangeSceneEventType, StateGameOver);
+      if (status)
+      {
+         goto exit;
+      }
+      Game->PreviousScore = Game->Snake->Length - 2;
+   }
 
 exit:
    return status;

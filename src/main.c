@@ -95,6 +95,11 @@ int main()
          else if(event.type == gChangeSceneEventType)
          {
             gCurrentScene = event.user.code;
+            if (StateGameOver == gCurrentScene)
+            {
+               SDL_Delay(1000);
+               ReinitSnake(game.Snake);
+            }
          }
       }
 
