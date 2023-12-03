@@ -1,4 +1,3 @@
-
 set(HEADER_FILES ${CMAKE_SOURCE_DIR}/src/snake.h
                  ${CMAKE_SOURCE_DIR}/src/apple.h
                  ${CMAKE_SOURCE_DIR}/src/font.h
@@ -44,9 +43,9 @@ if (LINUX)
     SET(SDL_TTF_SHARED_PATH "${CMAKE_BINARY_DIR}/sdl/SDL_ttf/libSDL3_ttf.so.0")
     SET(SDL_SHARED_PATH "${CMAKE_BINARY_DIR}/sdl/SDL/libSDL3.so.0")
 else()
-    SET(SDL_IMAGE_SHARED_PATH "${CMAKE_BINARY_DIR}/sdl/SDL_image/SDL3_image.dll")
-    SET(SDL_TTF_SHARED_PATH "${CMAKE_BINARY_DIR}/sdl/SDL_ttf/SDL3_ttf.dll")
-    SET(SDL_SHARED_PATH "${CMAKE_BINARY_DIR}/sdl/SDL/SDL3.dll")
+    SET(SDL_IMAGE_SHARED_PATH "${CMAKE_BINARY_DIR}/sdl/SDL_image/Release/SDL3_image.dll")
+    SET(SDL_TTF_SHARED_PATH "${CMAKE_BINARY_DIR}/sdl/SDL_ttf/Release/SDL3_ttf.dll")
+    SET(SDL_SHARED_PATH "${CMAKE_BINARY_DIR}/sdl/SDL/Release/SDL3.dll")
 endif()
 
 SET(ASSETS_PATH ${CMAKE_SOURCE_DIR}/assets)
