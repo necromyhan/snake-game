@@ -75,7 +75,7 @@ int main()
    }
 
    GAME game;
-   if (InitGame(&game, &(RESOLUTION){ 800, 600 }))
+   if (InitGame(&game, &(RESOLUTION){ WINDOW_WIDTH, WINDOW_HEIGHT }))
    {
       goto exit;
    }
