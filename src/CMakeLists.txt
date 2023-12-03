@@ -25,13 +25,16 @@ set_target_properties(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} PUBLIC SDL3_ttf::SDL3_ttf SDL3_image::SDL3_image SDL3::SDL3)
 
 
-if (NOT DEFINED WINDOW_HEIGHT OR NOT DEFINED ${WINDOW_HEIGHT})
+if (NOT WINDOW_HEIGHT OR NOT ${WINDOW_HEIGHT})
     SET(WINDOW_HEIGHT 600)
 endif()
 
-if (NOT DEFINED WINDOW_WIDTH OR NOT DEFINED ${WINDOW_WIDTH})
+if (NOT WINDOW_WIDTH OR NOT ${WINDOW_WIDTH})
     SET(WINDOW_WIDTH 800)
 endif()
+
+message("Window Height = ${WINDOW_HEIGHT}")
+message("Window Width = ${WINDOW_WIDTH}")
 
 ADD_DEFINITIONS(-DWINDOW_HEIGHT=${WINDOW_HEIGHT})
 ADD_DEFINITIONS(-DWINDOW_WIDTH=${WINDOW_WIDTH})
@@ -52,11 +55,13 @@ add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${ASSETS_PATH}" "${CMAKE_SOURCE_DIR}/output/assets"
     COMMENT "Copying assets directory")
-
+    
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${SDL_SHARED_PATH}" "${CMAKE_SOURCE_DIR}/output"
     COMMAND ${CMAKE_COMMAND} -E copy "${SDL_IMAGE_SHARED_PATH}" "${CMAKE_SOURCE_DIR}/output"
     COMMAND ${CMAKE_COMMAND} -E copy "${SDL_TTF_SHARED_PATH}" "${CMAKE_SOURCE_DIR}/output"
     COMMENT "Copying shared libraries")
-
+        
+unset(WINDOW_HEIGHT CACHE)
+unset(WINDOW_WIDTH CACHE)
