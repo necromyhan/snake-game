@@ -1,21 +1,28 @@
 # Snake Game
-## Features
+## About
 
-Simple Snake game that revives the timeless classic in a modern coding environment. Written in C99 and leveraging the capabilities of [SDL3](https://github.com/libsdl-org/SDL), this game not only offers entertainment but also serves as an reference for those who interested in game development with C and SDL.\
+Simple 2D snake game clone written in C99 using the capabilities of [SDL3](https://github.com/libsdl-org/SDL). Made for the purpose of studying game development.\
 \
 The game is available on two platforms, Linux and Windows.\
 \
-Currently only fixed resolution is available.
+Currently only fixed resolution is available.\
+\
+All game artwork is made by me.\
+Font - Kongtext.
+
+### Gameplay screenshot
+
+![Gameplay](https://github.com/necromyhan/snake-game/blob/master/gameplay_screenshot.png)
 
 ## Build
 ### Linux
 
-| Required packages|
-|------------------|
-| build-essential  |
-| libfreetype6     |
-| libfreetype6-dev |
-| libsdl2-dev      |
+Required packages:
+
+- build-essential  
+- libfreetype6
+- libfreetype6-dev 
+- libsdl2-dev      
 
 1. Install required packages
 ```bash
