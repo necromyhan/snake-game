@@ -1,7 +1,11 @@
 # Snake Game
-Simple SDL3 game project written in C99.
-
 ## Features
+
+Simple Snake game that revives the timeless classic in a modern coding environment. Written in C99 and leveraging the capabilities of [SDL3](https://github.com/libsdl-org/SDL), this game not only offers entertainment but also serves as an reference for those who interested in game development with C and SDL.\
+\
+The game is available on two platforms, Linux and Windows.\
+\
+Currently only fixed resolution is available.
 
 ## Build
 ### Linux
@@ -58,19 +62,24 @@ _Tested on Windows 10 22H2 64-bit_
 ## Binary
 
 Ready-to-run game builds are available in the [Releases](https://github.com/necromyhan/snake-game/releases/) section.\
-For Linux, self-build is recommended.\
+For Linux, self-build is recommended.
 
-### Windows
-To run game on Windows launch snake_game.exe. Do not move contents of snake-game directory.\
-
+## Running the Game
 ### Linux
-libsdl2-dev install required.
-To run game on Linux launch run_game.sh script
-
+Install libsdl2 library via apt.\
+Launch run_game.sh script in the project directory.
 ```bash
 cd snake-game
 bash ./run_game.sh
 ```
-## Controls
+### Windows
+Execute snake_game.exe. Ensure all files remain in their original locations.
 
-Snake movement and menu navigation with arrows. Enter to choose menu item.
+### Controls
+- Arrow Keys: Navigate the snake or menu options.
+- Enter Key: Select menu items.
+
+
+## Contributing
+
+Contributions are welcome! If you have ideas for improvements or bug fixes, feel free to fork the repository and submit pull requests.
