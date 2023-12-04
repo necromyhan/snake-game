@@ -46,20 +46,31 @@ cmake -B build
 cmake --build build
 ```
 \
-_Tested on Ubuntu 23.10.1_
+_Tested on Ubuntu 23.10.1 64-bit_
 
 ### Windows
 
 Same as Linux, but before cmake build download [FreeType](https://sourceforge.net/projects/freetype/) sources and copy them into ___..\Snake-Game\sdl\SDL_ttf\external\freetype___ directory.
 \
 \
-_Tested on Windows 10 22H2_
+_Tested on Windows 10 22H2 64-bit_
 
 ## Binary
 
-You can download archives with game from Releases section.\
-For Linux, self-build is recommended.
+Ready-to-run game builds are available in the [Releases](https://github.com/necromyhan/snake-game/releases/) section.\
+For Linux, self-build is recommended.\
 
+### Windows
+To run game on Windows launch snake_game.exe. Do not move contents of snake-game directory.\
+
+### Linux
+libsdl2-dev install required.
+To run game on Linux launch run_game.sh script
+
+```bash
+cd snake-game
+bash ./run_game.sh
+```
 ## Controls
 
 Snake movement and menu navigation with arrows. Enter to choose menu item.
