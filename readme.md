@@ -1,10 +1,15 @@
 # Snake Game
 ## About
 
-Simple 2D snake game clone written in C99 using the capabilities of [SDL3](https://github.com/libsdl-org/SDL). Made for the purpose of studying game development.\
+Simple 2D snake game clone written in C99 using the capabilities of SDL3. Made for the purpose of studying game development.\
 \
-The game is available on two platforms, Linux and Windows.\
-\
+Used libraries:
+- [SDL3](https://github.com/libsdl-org/SDL)
+- [SDL_image](https://github.com/libsdl-org/SDL_image)
+- [SDL_ttf](https://github.com/libsdl-org/SDL_ttf)
+
+
+Game is available on two platforms, Linux and Windows.\
 Currently only fixed resolution is available.\
 \
 All game artwork is made by me.\
@@ -17,29 +22,29 @@ Font - Kongtext.
 ## Build
 ### Linux
 
-Required packages:
+Required packages for self-build:
 
-- build-essential  
-- libfreetype6
+- build-essential 
 - libfreetype6-dev 
-- libsdl2-dev      
+- libsdl2-dev
 
-1. Install required packages
-```bash
-sudo apt install build-esseintial libfreetype6 libfreetype6-dev libsdl2-dev
-```
+
+Install required packages
+  ```bash
+  sudo apt install build-esseintial libfreetype6-dev libsdl2-dev
+  ```
+  \
+Clone repo form github
+  ```bash
+  git clone https://github.com/necromyhan/snake-game
+  ```
 \
-2. Clone repo form github
-```bash
-git clone https://github.com/necromyhan/snake-game
-```
-\
-3.  Choose project directory
+Choose project directory
 ```bash
 cd snake-game
 ```
 \
-4. Init and update git submodules
+Init and update git submodules
 ```bash
 git submodule init
 ```
@@ -47,24 +52,24 @@ git submodule init
 git submodule update
 ```
 \
-5. Configure CMake
+Configure CMake
 ```bash
 cmake -B build
 ```
 \
-6. Build project
+Build project
 ```bash
 cmake --build build
 ```
 \
-_Tested on Ubuntu 23.10.1 64-bit_
+_Tested on Ubuntu 23.10.1 64-bit with gcc_
 
 ### Windows
 
-Same as Linux, but before cmake build download [FreeType](https://sourceforge.net/projects/freetype/) sources and copy them into ___..\Snake-Game\sdl\SDL_ttf\external\freetype___ directory.
+Same as Linux, but before the cmake step download [FreeType](https://sourceforge.net/projects/freetype/) sources and copy them into ___..\snake-game\sdl\SDL_ttf\external\freetype___ directory.
 \
 \
-_Tested on Windows 10 22H2 64-bit_
+_Tested on Windows 10 22H2 64-bit with MSVC_
 
 ## Binary
 
@@ -73,8 +78,7 @@ For Linux, self-build is recommended.
 
 ## Running the Game
 ### Linux
-Install libsdl2 library via apt.\
-Launch run_game.sh script in the project directory.
+Launch run_game.sh script in the project directory. Ensure all files remain in their original locations.
 ```bash
 cd snake-game
 bash ./run_game.sh
