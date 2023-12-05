@@ -31,7 +31,7 @@ Required packages for self-build:
 
 Install required packages
   ```bash
-  sudo apt install build-esseintial libfreetype6-dev libsdl2-dev
+  sudo apt install build-essential libfreetype6-dev libsdl2-dev
   ```
   \
 Clone repo form github
