@@ -61,6 +61,13 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy "${SDL_IMAGE_SHARED_PATH}" "${CMAKE_SOURCE_DIR}/output"
     COMMAND ${CMAKE_COMMAND} -E copy "${SDL_TTF_SHARED_PATH}" "${CMAKE_SOURCE_DIR}/output"
     COMMENT "Copying shared libraries")
+
+if (LINUX)
+    add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/run_game.sh" "${CMAKE_SOURCE_DIR}/output"
+        COMMENT "Copying run script")
+endif()
         
 unset(WINDOW_HEIGHT CACHE)
 unset(WINDOW_WIDTH CACHE)
